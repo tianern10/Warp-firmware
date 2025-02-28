@@ -17,17 +17,6 @@ volatile uint8_t	inBuffer[1];
 volatile uint8_t	payloadBytes[1];
 
 
-/*
- *	Override Warp firmware's use of these pins and define new aliases.
- */
-enum
-{
-	kSSD1331PinMOSI		= GPIO_MAKE_PIN(HW_GPIOA, 8),
-	kSSD1331PinSCK		= GPIO_MAKE_PIN(HW_GPIOA, 9),
-	kSSD1331PinCSn		= GPIO_MAKE_PIN(HW_GPIOB, 13),
-	kSSD1331PinDC		= GPIO_MAKE_PIN(HW_GPIOA, 12),
-	kSSD1331PinRST		= GPIO_MAKE_PIN(HW_GPIOB, 0),
-};
 
 static int
 writeCommand(uint8_t commandByte)
@@ -77,7 +66,7 @@ devSSD1331init(void)
 	PORT_HAL_SetMuxMode(PORTA_BASE, 8u, kPortMuxAlt3);
 	PORT_HAL_SetMuxMode(PORTA_BASE, 9u, kPortMuxAlt3);
 
-	enableSPIpins();
+	warpEnableSPIpins();
 
 	/*
 	 *	Override Warp firmware's use of these pins.
@@ -165,4 +154,33 @@ devSSD1331init(void)
 
 
 	return 0;
+}
+
+void
+printGreenRectSSD1331(void)
+{
+	writeCommand(kSSD1331CommandDISPLAYON);		// Turn on oled panel
+	writeCommand(kSSD1331CommandCONTRASTB);		// 0x82
+	writeCommand(0xFF);
+	writeCommand(kSSD1331CommandDRAWRECT);	// “draw rectangle mode”
+	writeCommand(0x00);	// Starting column coordinates
+	writeCommand(0x00);	// Starting row coordinates
+	writeCommand(0x5F);	// Finishing column coordinates
+	writeCommand(0x3F);	// Finishing row coordinates
+	writeCommand(0x00);	// Set the outline color C (Blue)
+	writeCommand(0xFF);	// Set the outline color B (Green)
+	writeCommand(0x00);	// Set the outline color A (Red)
+	writeCommand(0x00);	// Set the filled color C (Blue)
+	writeCommand(0xFF);	// Set the filled color B (Green)
+	writeCommand(0x00);	// Set the filled color A (Red)
+}
+
+void
+clearScreenSSD1331(void)
+{
+	writeCommand(kSSD1331CommandCLEAR);
+	writeCommand(0x00);
+	writeCommand(0x00);
+	writeCommand(0x5F);
+	writeCommand(0x3F);
 }

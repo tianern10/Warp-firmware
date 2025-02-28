@@ -3,6 +3,9 @@
 #include "config.h"
 #include "gpio_pins.h"
 #include "device/fsl_device_registers.h"
+#if (WARP_BUILD_ENABLE_DEVSSD1331)
+	#include "devSSD1331.h"
+#endif
 
 /*
  *	Here, we configure all pins that we ever use as general-purpose output.
@@ -171,6 +174,34 @@ gpio_output_pin_user_config_t	outputPins[] =
 		
 		
 	#elif (WARP_BUILD_ENABLE_FRDMKL03)
+		#if (WARP_BUILD_ENABLE_DEVSSD1331)
+			// For green LED
+			{
+				.pinName = GPIO_MAKE_PIN(HW_GPIOB, 11),
+				.config.outputLogic = 0,
+				.config.slewRate = kPortSlowSlewRate,
+				.config.driveStrength = kPortLowDriveStrength,
+			},
+			// GPIO pins for SPI
+			{
+				.pinName = kSSD1331PinCSn,
+				.config.outputLogic = 1,
+				.config.slewRate = kPortSlowSlewRate,
+				.config.driveStrength = kPortLowDriveStrength,
+			},
+			{
+				.pinName = kSSD1331PinDC,
+				.config.outputLogic = 1,
+				.config.slewRate = kPortSlowSlewRate,
+				.config.driveStrength = kPortLowDriveStrength,
+			},
+			{
+				.pinName = kSSD1331PinRST,
+				.config.outputLogic = 1,
+				.config.slewRate = kPortSlowSlewRate,
+				.config.driveStrength = kPortLowDriveStrength,
+			},
+		#endif
 
 	#endif
 

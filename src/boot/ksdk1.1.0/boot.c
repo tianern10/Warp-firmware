@@ -76,19 +76,22 @@
 /*
 * Include all sensors because they will be needed to decode flash.
 */
-#include "devADXL362.h"
-#include "devAMG8834.h"
+// #include "devADXL362.h"
+// #include "devAMG8834.h"
 #include "devMMA8451Q.h"
-#include "devMAG3110.h"
-#include "devL3GD20H.h"
-#include "devBME680.h"
-#include "devBNO055.h"
-#include "devBMX055.h"
-#include "devCCS811.h"
-#include "devHDC1000.h"
-#include "devRV8803C7.h"
-#include "devRF430CL331H.h"
+// #include "devMAG3110.h"
+// #include "devL3GD20H.h"
+// #include "devBME680.h"
+// #include "devBNO055.h"
+// #include "devBMX055.h"
+// #include "devCCS811.h"
+// #include "devHDC1000.h"
+// #include "devRV8803C7.h"
+// #include "devRF430CL331H.h"
 
+#if (WARP_BUILD_ENABLE_DEVSSD1331)
+	#include "devSSD1331.h"
+#endif
 
 #if (WARP_BUILD_ENABLE_DEVADXL362)
 	volatile WarpSPIDeviceState			deviceADXL362State;
@@ -202,7 +205,7 @@ typedef enum
 	kWarpFlashRTCTPRBitField 		= 0b100,
 	kWarpFlashADXL362BitField 		= 0b1000,
 	kWarpFlashAMG8834BitField 		= 0b10000,
-	kWarpFlashMMA8541QBitField		= 0b100000,
+	kWarpFlashMMA8451QBitField		= 0b100000,
 	kWarpFlashMAG3110BitField		= 0b1000000,
 	kWarpFlashL3GD20HBitField		= 0b10000000,
 	kWarpFlashBME680BitField		= 0b100000000,
@@ -1662,7 +1665,7 @@ main(void)
 #endif
 
 #if (WARP_BUILD_ENABLE_DEVMMA8451Q)
-		initMMA8451Q(	0x1C	/* i2cAddress */,	kWarpDefaultSupplyVoltageMillivoltsMMA8451Q	);
+		initMMA8451Q(	0x1D	/* i2cAddress */,	kWarpDefaultSupplyVoltageMillivoltsMMA8451Q	);
 #endif
 
 #if (WARP_BUILD_ENABLE_DEVLPS25H)
@@ -2046,6 +2049,25 @@ main(void)
 		}
 	}
 #endif
+
+	if (WARP_BUILD_ENABLE_DEVSSD1331){
+		PORT_HAL_SetMuxMode(PORTB_BASE, 11u, kPortMuxAsGpio);
+		GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
+		OSA_TimeDelay(1000);
+		GPIO_DRV_ClearPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
+		OSA_TimeDelay(1000);
+		GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
+		OSA_TimeDelay(1000);
+		GPIO_DRV_ClearPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
+		OSA_TimeDelay(1000);
+		GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
+		OSA_TimeDelay(1000);
+	
+		devSSD1331init();
+		printGreenRectSSD1331();
+		OSA_TimeDelay(10000);
+		clearScreenSSD1331();	
+	}
 
 	while (1)
 	{
@@ -5051,7 +5073,7 @@ flashDecodeSensorBitField(uint16_t sensorBitField, uint8_t sensorIndex, uint8_t*
 	/*
 	 * MMA8451Q
 	*/
-	if (sensorBitField & kWarpFlashMMA8541QBitField)
+	if (sensorBitField & kWarpFlashMMA8451QBitField)
 	{
 		numberOfSensorsFound++;
 		if (numberOfSensorsFound - 1 == sensorIndex)

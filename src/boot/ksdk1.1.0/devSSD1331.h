@@ -1,6 +1,19 @@
 /*
  *	See https://github.com/adafruit/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino for the Arduino driver.
  */
+#include "fsl_gpio_driver.h"
+
+/*
+ *	Override Warp firmware's use of these pins and define new aliases.
+ */
+enum
+{
+	// kSSD1331PinMOSI		= GPIO_MAKE_PIN(HW_GPIOA, 8),
+	// kSSD1331PinSCK		= GPIO_MAKE_PIN(HW_GPIOA, 9),
+	kSSD1331PinCSn		= GPIO_MAKE_PIN(HW_GPIOB, 13),
+	kSSD1331PinDC		= GPIO_MAKE_PIN(HW_GPIOA, 12),
+	kSSD1331PinRST		= GPIO_MAKE_PIN(HW_GPIOB, 0),
+};
 
 typedef enum
 {
@@ -43,3 +56,5 @@ typedef enum
 } SSD1331Commands;
 
 int	devSSD1331init(void);
+void printGreenRectSSD1331(void);
+void clearScreenSSD1331(void);
