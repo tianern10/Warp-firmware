@@ -63,8 +63,6 @@ devSSD1331init(void)
 	 *
 	 *	Re-configure SPI to be on PTA8 and PTA9 for MOSI and SCK respectively.
 	 */
-	PORT_HAL_SetMuxMode(PORTA_BASE, 8u, kPortMuxAlt3);
-	PORT_HAL_SetMuxMode(PORTA_BASE, 9u, kPortMuxAlt3);
 
 	warpEnableSPIpins();
 
@@ -151,6 +149,7 @@ devSSD1331init(void)
 	 */
 	//...
 
+	warpDisableSPIpins();
 
 
 	return 0;
@@ -159,6 +158,8 @@ devSSD1331init(void)
 void
 printGreenRectSSD1331(void)
 {
+	warpEnableSPIpins();
+
 	writeCommand(kSSD1331CommandDISPLAYON);		// Turn on oled panel
 	writeCommand(kSSD1331CommandCONTRASTB);		// 0x82
 	writeCommand(0xFF);
@@ -173,14 +174,21 @@ printGreenRectSSD1331(void)
 	writeCommand(0x00);	// Set the filled color C (Blue)
 	writeCommand(0xFF);	// Set the filled color B (Green)
 	writeCommand(0x00);	// Set the filled color A (Red)
+
+	warpDisableSPIpins();
+
 }
 
 void
 clearScreenSSD1331(void)
 {
+	warpEnableSPIpins();
+
 	writeCommand(kSSD1331CommandCLEAR);
 	writeCommand(0x00);
 	writeCommand(0x00);
 	writeCommand(0x5F);
 	writeCommand(0x3F);
+
+	warpDisableSPIpins();
 }

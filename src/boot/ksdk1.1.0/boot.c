@@ -78,7 +78,6 @@
 */
 // #include "devADXL362.h"
 // #include "devAMG8834.h"
-#include "devMMA8451Q.h"
 // #include "devMAG3110.h"
 // #include "devL3GD20H.h"
 // #include "devBME680.h"
@@ -91,6 +90,12 @@
 
 #if (WARP_BUILD_ENABLE_DEVSSD1331)
 	#include "devSSD1331.h"
+#endif
+#if (WARP_BUILD_ENABLE_DEVMMA8451Q)
+	#include "devMMA8451Q.h"
+#endif
+#if (WARP_BUILD_ENABLE_DEVINA219)
+	#include "devINA219.h"
 #endif
 
 #if (WARP_BUILD_ENABLE_DEVADXL362)
@@ -126,6 +131,11 @@
 #if (WARP_BUILD_ENABLE_DEVMMA8451Q)
 	volatile WarpI2CDeviceState			deviceMMA8451QState;
 #endif
+
+#if (WARP_BUILD_ENABLE_DEVINA219)
+	volatile WarpI2CDeviceState			deviceINA219State;
+#endif
+
 #if (WARP_BUILD_ENABLE_DEVBNO055)
 	#include "devBNO055.h"
 	volatile WarpI2CDeviceState			deviceBNO055State;	
@@ -216,6 +226,7 @@ typedef enum
 	kWarpFlashRF430CL331HBitField	= 0b10000000000000,
 	kWarpFlashRV8803C7BitField		= 0b100000000000000,
 	kWarpFlashNumConfigErrors		= 0b1000000000000000,
+	kWarpFlashINA219BitField		= 0b10000000000000000,
 } WarpFlashSensorBitFieldEncoding;
 
 volatile i2c_master_state_t		  i2cMasterState;
@@ -539,19 +550,8 @@ warpEnableSPIpins(void)
 {
 	CLOCK_SYS_EnableSpiClock(0);
 
-	/*	kWarpPinSPI_MISO_UART_RTS_UART_RTS --> PTA6 (ALT3)	*/
-	PORT_HAL_SetMuxMode(PORTA_BASE, 6, kPortMuxAlt3);
-
-	/*	kWarpPinSPI_MOSI_UART_CTS --> PTA7 (ALT3)	*/
-	PORT_HAL_SetMuxMode(PORTA_BASE, 7, kPortMuxAlt3);
-
-#if (WARP_BUILD_ENABLE_GLAUX_VARIANT)
-	/*	kWarpPinSPI_SCK	--> PTA9	(ALT3)		*/
-	PORT_HAL_SetMuxMode(PORTA_BASE, 9, kPortMuxAlt3);
-#else
-	/*	kWarpPinSPI_SCK	--> PTB0	(ALT3)		*/
-	PORT_HAL_SetMuxMode(PORTB_BASE, 0, kPortMuxAlt3);
-#endif
+	PORT_HAL_SetMuxMode(PORTA_BASE, 8u, kPortMuxAlt3);  // MOSI
+	PORT_HAL_SetMuxMode(PORTA_BASE, 9u, kPortMuxAlt3);  // CK
 
 	/*
 	 *	Initialize SPI master. See KSDK13APIRM.pdf Section 70.4
@@ -570,24 +570,8 @@ warpDisableSPIpins(void)
 {
 	SPI_DRV_MasterDeinit(0);
 
-	/*	kWarpPinSPI_MISO_UART_RTS	--> PTA6	(GPI)		*/
-	PORT_HAL_SetMuxMode(PORTA_BASE, 6, kPortMuxAsGpio);
-
-	/*	kWarpPinSPI_MOSI_UART_CTS	--> PTA7	(GPIO)		*/
-	PORT_HAL_SetMuxMode(PORTA_BASE, 7, kPortMuxAsGpio);
-
-#if (WARP_BUILD_ENABLE_GLAUX_VARIANT)
-	/*	kWarpPinSPI_SCK	--> PTA9	(GPIO)			*/
-	PORT_HAL_SetMuxMode(PORTA_BASE, 9, kPortMuxAsGpio);
-#else
-	/*	kWarpPinSPI_SCK	--> PTB0	(GPIO)			*/
-	PORT_HAL_SetMuxMode(PORTB_BASE, 0, kPortMuxAsGpio);
-#endif
-
-	//TODO: we don't use HW flow control so can remove these since we don't use the RTS/CTS
-	GPIO_DRV_ClearPinOutput(kWarpPinSPI_MOSI_UART_CTS);
-	GPIO_DRV_ClearPinOutput(kWarpPinSPI_MISO_UART_RTS);
-	GPIO_DRV_ClearPinOutput(kWarpPinSPI_SCK);
+	PORT_HAL_SetMuxMode(PORTA_BASE, 8u, kPortPinDisabled);  // MOSI
+	PORT_HAL_SetMuxMode(PORTA_BASE, 9u, kPortPinDisabled);  // CK
 
 	CLOCK_SYS_DisableSpiClock(0);
 }
@@ -1667,7 +1651,9 @@ main(void)
 #if (WARP_BUILD_ENABLE_DEVMMA8451Q)
 		initMMA8451Q(	0x1D	/* i2cAddress */,	kWarpDefaultSupplyVoltageMillivoltsMMA8451Q	);
 #endif
-
+#if (WARP_BUILD_ENABLE_DEVINA219)
+		initINA219(	0x40	/* i2cAddress */, kWarpDefaultSupplyVoltageMillivoltsINA219	);
+#endif
 #if (WARP_BUILD_ENABLE_DEVLPS25H)
 		initLPS25H(	0x5C	/* i2cAddress */,	kWarpDefaultSupplyVoltageMillivoltsLPS25H	);
 #endif
@@ -2051,22 +2037,31 @@ main(void)
 #endif
 
 	if (WARP_BUILD_ENABLE_DEVSSD1331){
+		// Flash onboard RGB
 		PORT_HAL_SetMuxMode(PORTB_BASE, 11u, kPortMuxAsGpio);
 		GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(1000);
+		OSA_TimeDelay(500);
 		GPIO_DRV_ClearPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(1000);
+		OSA_TimeDelay(500);
 		GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(1000);
+		OSA_TimeDelay(500);
 		GPIO_DRV_ClearPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(1000);
+		OSA_TimeDelay(500);
 		GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(1000);
+		OSA_TimeDelay(500);
 	
+		// Flash OLED
 		devSSD1331init();
 		printGreenRectSSD1331();
-		OSA_TimeDelay(10000);
-		clearScreenSSD1331();	
+		OSA_TimeDelay(500);
+		clearScreenSSD1331();
+		OSA_TimeDelay(500);	
+		printGreenRectSSD1331();
+		OSA_TimeDelay(500);
+	}
+
+	if (WARP_BUILD_ENABLE_DEVINA219){
+		configureSensorINA219();
 	}
 
 	while (1)
@@ -2153,6 +2148,11 @@ main(void)
 					warpPrint("\r\t- '5' MMA8451Q			(0x00--0x31): 1.95V -- 3.6V\n");
 #else
 					warpPrint("\r\t- '5' MMA8451Q			(0x00--0x31): 1.95V -- 3.6V (compiled out) \n");
+#endif
+#if (WARP_BUILD_ENABLE_DEVINA219)
+					warpPrint("\r\t- 'I' INA219				(0x00--0x05): \n");
+#else
+					warpPrint("\r\t- 'I' INA219				(0x00--0x05): (compiled out) \n");
 #endif
 
 #if (WARP_BUILD_ENABLE_DEVLPS25H)
@@ -2282,6 +2282,15 @@ main(void)
 					{
 						menuTargetSensor = kWarpSensorMMA8451Q;
 							menuI2cDevice = &deviceMMA8451QState;
+						break;
+					}
+#endif
+
+#if (WARP_BUILD_ENABLE_DEVINA219)
+					case 'I':
+					{
+						menuTargetSensor = kWarpSensorINA219;
+						menuI2cDevice = &deviceINA219State;
 						break;
 					}
 #endif
@@ -3289,7 +3298,10 @@ writeAllSensorsToFlash(int menuDelayBetweenEachRun, int loopForever)
 	);
 	sensorBitField = sensorBitField | kWarpFlashMMA8451QBitField;
 #endif
-
+// TODO write to flash
+// #if (WARP_BUILD_ENABLE_DEVINA219)
+// 	#error "No implementation yet for using flash"
+// #endif
 #if (WARP_BUILD_ENABLE_DEVMAG3110)
 	numberOfConfigErrors += configureSensorMAG3110(
 		0x00, /*	Payload: DR 000, OS 00, 80Hz, ADC 1280, Full 16bit, standby mode
@@ -3434,6 +3446,10 @@ writeAllSensorsToFlash(int menuDelayBetweenEachRun, int loopForever)
 		bytesWrittenIndex += appendSensorDataMMA8451Q(flashWriteBuf + bytesWrittenIndex);
 #endif
 
+// #if (WARP_BUILD_ENABLE_DEVINA219)
+// 	#error "Not implemented yet"
+// #endif
+
 #if (WARP_BUILD_ENABLE_DEVMAG3110)
 		bytesWrittenIndex += appendSensorDataMAG3110(flashWriteBuf + bytesWrittenIndex);
 #endif
@@ -3556,6 +3572,10 @@ printAllSensors(bool printHeadersAndCalibration, bool hexModeFlag,
 	);
 #endif
 
+#if (WARP_BUILD_ENABLE_DEVINA219)
+	numberOfConfigErrors += configureSensorINA219();
+#endif
+
 #if (WARP_BUILD_ENABLE_DEVMAG3110)
 	numberOfConfigErrors += configureSensorMAG3110(
 		0x00, /*	Payload: DR 000, OS 00, 80Hz, ADC 1280, Full 16bit, standby mode
@@ -3653,6 +3673,10 @@ printAllSensors(bool printHeadersAndCalibration, bool hexModeFlag,
 		warpPrint(" MMA8451 x, MMA8451 y, MMA8451 z,");
 #endif
 
+#if (WARP_BUILD_ENABLE_DEVINA219)
+		warpPrint(" INA219 Current (uA), INA219 Shunt Voltage (uV), INA219 Bus Voltage (mV), INA219 Power (uW),");
+#endif
+
 #if (WARP_BUILD_ENABLE_DEVMAG3110)
 		warpPrint(" MAG3110 x, MAG3110 y, MAG3110 z, MAG3110 Temp,");
 #endif
@@ -3707,6 +3731,10 @@ printAllSensors(bool printHeadersAndCalibration, bool hexModeFlag,
 
 #if (WARP_BUILD_ENABLE_DEVMMA8451Q)
 		printSensorDataMMA8451Q(hexModeFlag);
+#endif
+
+#if (WARP_BUILD_ENABLE_DEVINA219)
+		printSensorDataINA219(hexModeFlag);
 #endif
 
 #if (WARP_BUILD_ENABLE_DEVMAG3110)
@@ -3814,7 +3842,11 @@ loopForSensor(	const char *  tagString,
 	{
 		for (int i = 0; i < readCount; i++) for (int j = 0; j < chunkReadsPerAddress; j++)
 			{
-			status = readSensorRegisterFunction(address+j, 1 /* numberOfBytes */);
+				#if (WARP_BUILD_ENABLE_DEVINA219)
+					status = readSensorRegisterFunction(address+j, 2 /* numberOfBytes */);
+				#else
+					status = readSensorRegisterFunction(address+j, 1 /* numberOfBytes */);
+				#endif
 				if (status == kWarpStatusOK)
 				{
 					nSuccesses++;
@@ -3849,9 +3881,10 @@ loopForSensor(	const char *  tagString,
 
 						if (chatty)
 						{
-						warpPrint("\r\t0x%02x --> 0x%02x\n",
+						warpPrint("\r\t0x%02x --> 0x%02x 0x%02x \n",
 							address+j,
-									  i2cDeviceState->i2cBuffer[0]);
+							i2cDeviceState->i2cBuffer[0],
+							i2cDeviceState->i2cBuffer[1]);
 						}
 					}
 				}
@@ -3969,6 +4002,37 @@ repeatRegisterReadForDeviceAndAddress(WarpSensorDevice warpSensorDevice, uint8_t
 
 			break;
 		}
+
+		case kWarpSensorINA219:
+		{
+/*
+ *	INA219
+ */
+#if (WARP_BUILD_ENABLE_DEVINA219)
+				configureSensorINA219();
+				loopForSensor(	"\r\nINA219:\n\r",		/*	tagString			*/
+						&readSensorRegisterINA219,	/*	readSensorRegisterFunction	*/
+						&deviceINA219State,		/*	i2cDeviceState			*/
+						NULL,				/*	spiDeviceState			*/
+						baseAddress,			/*	baseAddress			*/
+						0x00,				/*	minAddress			*/
+						0x05,				/*	maxAddress			*/
+						repetitionsPerAddress,		/*	repetitionsPerAddress		*/
+						chunkReadsPerAddress,		/*	chunkReadsPerAddress		*/
+						spinDelay,			/*	spinDelay			*/
+						autoIncrement,			/*	autoIncrement			*/
+						sssupplyMillivolts,		/*	sssupplyMillivolts		*/
+						referenceByte,			/*	referenceByte			*/
+						adaptiveSssupplyMaxMillivolts,	/*	adaptiveSssupplyMaxMillivolts	*/
+						chatty				/*	chatty				*/
+			);
+#else
+			warpPrint("\r\n\tINA219 Read Aborted. Device Disabled :(");
+#endif
+
+			break;
+		}
+
 
 		case kWarpSensorBME680:
 		{
@@ -5083,6 +5147,15 @@ flashDecodeSensorBitField(uint16_t sensorBitField, uint8_t sensorIndex, uint8_t*
 			return;
 		}
 	}
+	
+	// TODO
+	// /*
+	//  * INA219
+	// */
+	// if (sensorBitField & kWarpFlashINA219BitField)
+	// {
+	// 	#error "No implementation yet for using flash"
+	// }
 
 	/*
 	 * MAG3110

@@ -83,6 +83,7 @@ typedef enum
 {
 	kWarpSensorADXL362,
 	kWarpSensorMMA8451Q,
+	kWarpSensorINA219,
 	kWarpSensorBME680,
 	kWarpSensorBNO055,
 	kWarpSensorBMX055accel,
@@ -202,6 +203,13 @@ typedef enum
 	kWarpSensorOutputRegisterMMA8451QOUT_Y_LSB			= 0x04,
 	kWarpSensorOutputRegisterMMA8451QOUT_Z_MSB			= 0x05,
 	kWarpSensorOutputRegisterMMA8451QOUT_Z_LSB			= 0x06,
+
+	kWarpSensorOutputRegisterINA219OUT_CONFIG			= 0x00,
+	kWarpSensorOutputRegisterINA219OUT_SHUNT			= 0x01,
+	kWarpSensorOutputRegisterINA219OUT_BUS				= 0x02,
+	kWarpSensorOutputRegisterINA219OUT_POWER			= 0x03,
+	kWarpSensorOutputRegisterINA219OUT_CURRENT			= 0x04,
+	kWarpSensorOutputRegisterINA219OUT_CALIBRATION		= 0x05,
 
 	kWarpSensorOutputRegisterMAG3110OUT_X_MSB			= 0x01,
 	kWarpSensorOutputRegisterMAG3110OUT_X_LSB			= 0x02,
