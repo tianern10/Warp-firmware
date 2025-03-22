@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <math.h>
 
 /*
  *	config.h needs to come first
@@ -1189,26 +1190,26 @@ dumpProcessorState(void)
 	warpPrint("\r\tTPM clock: %d\n", CLOCK_SYS_GetTpmGateCmd(0));
 }
 
-void
-printBootSplash(uint16_t gWarpCurrentSupplyVoltage, uint8_t menuRegisterAddress, WarpPowerManagerCallbackStructure *  powerManagerCallbackStructure)
-{
-	/*
-	 *	We break up the prints with small delays to allow us to use small RTT print
-	 *	buffers without overrunning them when at max CPU speed.
-	 */
-	warpPrint("\r\n\n\n\n[ *\t\t\t\tWarp (HW revision C) / Glaux (HW revision B)\t\t\t* ]\n");
-	warpPrint("\r[  \t\t\t\t      Cambridge / Physcomplab   \t\t\t\t  ]\n\n");
-	warpPrint("\r\tSupply=%dmV,\tDefault Target Read Register=0x%02x\n",
-			  gWarpCurrentSupplyVoltage, menuRegisterAddress);
-	warpPrint("\r\tI2C=%dkb/s,\tSPI=%dkb/s,\tUART=%db/s,\tI2C Pull-Up=%d\n\n",
-			  gWarpI2cBaudRateKbps, gWarpSpiBaudRateKbps, gWarpUartBaudRateBps);
-	warpPrint("\r\tSIM->SCGC6=0x%02x\t\tRTC->SR=0x%02x\t\tRTC->TSR=0x%02x\n", SIM->SCGC6, RTC->SR, RTC->TSR);
-	warpPrint("\r\tMCG_C1=0x%02x\t\t\tMCG_C2=0x%02x\t\tMCG_S=0x%02x\n", MCG_C1, MCG_C2, MCG_S);
-	warpPrint("\r\tMCG_SC=0x%02x\t\t\tMCG_MC=0x%02x\t\tOSC_CR=0x%02x\n", MCG_SC, MCG_MC, OSC_CR);
-	warpPrint("\r\tSMC_PMPROT=0x%02x\t\t\tSMC_PMCTRL=0x%02x\t\tSCB->SCR=0x%02x\n", SMC_PMPROT, SMC_PMCTRL, SCB->SCR);
-	warpPrint("\r\tPMC_REGSC=0x%02x\t\t\tSIM_SCGC4=0x%02x\tRTC->TPR=0x%02x\n\n", PMC_REGSC, SIM_SCGC4, RTC->TPR);
-	warpPrint("\r\t%ds in RTC Handler to-date,\t%d Pmgr Errors\n", gWarpSleeptimeSeconds, powerManagerCallbackStructure->errorCount);
-}
+// void
+// printBootSplash(uint16_t gWarpCurrentSupplyVoltage, uint8_t menuRegisterAddress, WarpPowerManagerCallbackStructure *  powerManagerCallbackStructure)
+// {
+// 	/*
+// 	 *	We break up the prints with small delays to allow us to use small RTT print
+// 	 *	buffers without overrunning them when at max CPU speed.
+// 	 */
+// 	warpPrint("\r\n\n\n\n[ *\t\t\t\tWarp (HW revision C) / Glaux (HW revision B)\t\t\t* ]\n");
+// 	warpPrint("\r[  \t\t\t\t      Cambridge / Physcomplab   \t\t\t\t  ]\n\n");
+// 	warpPrint("\r\tSupply=%dmV,\tDefault Target Read Register=0x%02x\n",
+// 			  gWarpCurrentSupplyVoltage, menuRegisterAddress);
+// 	warpPrint("\r\tI2C=%dkb/s,\tSPI=%dkb/s,\tUART=%db/s,\tI2C Pull-Up=%d\n\n",
+// 			  gWarpI2cBaudRateKbps, gWarpSpiBaudRateKbps, gWarpUartBaudRateBps);
+// 	warpPrint("\r\tSIM->SCGC6=0x%02x\t\tRTC->SR=0x%02x\t\tRTC->TSR=0x%02x\n", SIM->SCGC6, RTC->SR, RTC->TSR);
+// 	warpPrint("\r\tMCG_C1=0x%02x\t\t\tMCG_C2=0x%02x\t\tMCG_S=0x%02x\n", MCG_C1, MCG_C2, MCG_S);
+// 	warpPrint("\r\tMCG_SC=0x%02x\t\t\tMCG_MC=0x%02x\t\tOSC_CR=0x%02x\n", MCG_SC, MCG_MC, OSC_CR);
+// 	warpPrint("\r\tSMC_PMPROT=0x%02x\t\t\tSMC_PMCTRL=0x%02x\t\tSCB->SCR=0x%02x\n", SMC_PMPROT, SMC_PMCTRL, SCB->SCR);
+// 	warpPrint("\r\tPMC_REGSC=0x%02x\t\t\tSIM_SCGC4=0x%02x\tRTC->TPR=0x%02x\n\n", PMC_REGSC, SIM_SCGC4, RTC->TPR);
+// 	warpPrint("\r\t%ds in RTC Handler to-date,\t%d Pmgr Errors\n", gWarpSleeptimeSeconds, powerManagerCallbackStructure->errorCount);
+// }
 
 void
 blinkLED(int pin)
@@ -1909,8 +1910,7 @@ main(void)
 
 	if (rttKey < 0)
 	{
-		printBootSplash(gWarpCurrentSupplyVoltage, menuRegisterAddress,
-						&powerManagerCallbackStructure);
+		// printBootSplash(gWarpCurrentSupplyVoltage, menuRegisterAddress, &powerManagerCallbackStructure);
 
 		/*
 		 *	Force to printAllSensors
@@ -1962,7 +1962,7 @@ main(void)
 
 	if (rttKey < 0)
 	{
-		printBootSplash(gWarpCurrentSupplyVoltage, menuRegisterAddress, &powerManagerCallbackStructure);
+		// printBootSplash(gWarpCurrentSupplyVoltage, menuRegisterAddress, &powerManagerCallbackStructure);
 
 		warpPrint("About to loop with printSensorDataBME680()...\n");
 		while (1)
@@ -2036,1217 +2036,1219 @@ main(void)
 	}
 #endif
 
-	if (WARP_BUILD_ENABLE_DEVSSD1331){
-		// Flash onboard RGB
-		PORT_HAL_SetMuxMode(PORTB_BASE, 11u, kPortMuxAsGpio);
-		GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(500);
-		GPIO_DRV_ClearPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(500);
-		GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(500);
-		GPIO_DRV_ClearPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(500);
-		GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 11));
-		OSA_TimeDelay(500);
-	
-		// Flash OLED
-		devSSD1331init();
-		printGreenRectSSD1331();
-		OSA_TimeDelay(500);
-		clearScreenSSD1331();
-		OSA_TimeDelay(500);	
-		printGreenRectSSD1331();
-		OSA_TimeDelay(500);
-	}
-
-	if (WARP_BUILD_ENABLE_DEVINA219){
-		configureSensorINA219();
-	}
-
-	while (1)
-	{
-		/*
-		 *	Do not, e.g., lowPowerPinStates() on each iteration, because we actually
-		 *	want to use menu to progressiveley change the machine state with various
-		 *	commands.
-		 */
-		gWarpExtraQuietMode = false;
-		printBootSplash(gWarpCurrentSupplyVoltage, menuRegisterAddress, &powerManagerCallbackStructure);
-
-		warpPrint("\rSelect:\n");
-		warpPrint("\r- 'a': set default sensor.\n");
-		warpPrint("\r- 'b': set I2C baud rate.\n");
-		warpPrint("\r- 'c': set SPI baud rate.\n");
-		warpPrint("\r- 'd': set UART baud rate.\n");
-		warpPrint("\r- 'e': set default register address.\n");
-		warpPrint("\r- 'f': write byte to sensor.\n");
-		warpPrint("\r- 'g': set default sensor supply voltage.\n");
-		warpPrint("\r- 'h': powerdown command to all sensors.\n");
-		warpPrint("\r- 'i': set pull-up enable value.\n");
-		warpPrint("\r- 'j': repeat read reg 0x%02x on sensor #%d.\n", menuRegisterAddress, menuTargetSensor);
-		warpPrint("\r- 'k': sleep until reset.\n");
-		warpPrint("\r- 'l': send repeated byte on I2C.\n");
-		warpPrint("\r- 'm': send repeated byte on SPI.\n");
-		warpPrint("\r- 'n': enable sensor supply voltage.\n");
-		warpPrint("\r- 'o': disable sensor supply voltage.\n");
-		warpPrint("\r- 'p': switch to VLPR mode.\n");
-		warpPrint("\r- 'r': switch to RUN mode.\n");
-		warpPrint("\r- 's': power up all sensors.\n");
-		warpPrint("\r- 't': dump processor state.\n");
-		warpPrint("\r- 'u': set I2C address.\n");
-
-#if (WARP_BUILD_ENABLE_DEVAT45DB)
-		warpPrint("\r- 'R': read bytes from Flash.\n");
-		warpPrint("\r- 'Z': reset Flash.\n");
-#elif (WARP_BUILD_ENABLE_DEVIS25xP)
-		warpPrint("\r- 'R': read bytes from Flash.\n");
-		warpPrint("\r- 'F': Open Flash menu.\n");
-		warpPrint("\r- 'Z': reset Flash.\n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVICE40)
-		warpPrint("\r- 'P': write bytes to FPGA configuration.\n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVRV8803C7)
-		warpPrint("\r- 'v': Enter VLLS0 low-power mode for 3s, then reset\n");
-#endif
-
-		warpPrint("\r- 'x': disable SWD and spin for 10 secs.\n");
-		warpPrint("\r- 'z': perpetually dump all sensor data.\n");
-
-		warpPrint("\rEnter selection> ");
-		key = warpWaitKey();
-
-		switch (key)
-		{
-			/*
-			 *		Select sensor
-			 */
-			case 'a':
-			{
-				warpPrint("\r\tSelect:\n");
-
-#if (WARP_BUILD_ENABLE_DEVADXL362)
-					warpPrint("\r\t- '1' ADXL362			(0x00--0x2D): 1.6V -- 3.5V\n");
-#else
-					warpPrint("\r\t- '1' ADXL362			(0x00--0x2D): 1.6V -- 3.5V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVBMX055)
-				warpPrint("\r\t- '2' BMX055accel		(0x00--0x3F): 2.4V -- 3.6V\n");
-				warpPrint("\r\t- '3' BMX055gyro		(0x00--0x3F): 2.4V -- 3.6V\n");
-					warpPrint("\r\t- '4' BMX055mag			(0x40--0x52): 2.4V -- 3.6V\n");
-#else
-					warpPrint("\r\t- '2' BMX055accel 		(0x00--0x3F): 2.4V -- 3.6V (compiled out) \n");
-					warpPrint("\r\t- '3' BMX055gyro			(0x00--0x3F): 2.4V -- 3.6V (compiled out) \n");
-					warpPrint("\r\t- '4' BMX055mag			(0x40--0x52): 2.4V -- 3.6V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVMMA8451Q)
-					warpPrint("\r\t- '5' MMA8451Q			(0x00--0x31): 1.95V -- 3.6V\n");
-#else
-					warpPrint("\r\t- '5' MMA8451Q			(0x00--0x31): 1.95V -- 3.6V (compiled out) \n");
-#endif
-#if (WARP_BUILD_ENABLE_DEVINA219)
-					warpPrint("\r\t- 'I' INA219				(0x00--0x05): \n");
-#else
-					warpPrint("\r\t- 'I' INA219				(0x00--0x05): (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVLPS25H)
-					warpPrint("\r\t- '6' LPS25H			(0x08--0x24): 1.7V -- 3.6V\n");
-#else
-					warpPrint("\r\t- '6' LPS25H			(0x08--0x24): 1.7V -- 3.6V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVMAG3110)
-					warpPrint("\r\t- '7' MAG3110			(0x00--0x11): 1.95V -- 3.6V\n");
-#else
-					warpPrint("\r\t- '7' MAG3110			(0x00--0x11): 1.95V -- 3.6V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVHDC1000)
-					warpPrint("\r\t- '8' HDC1000			(0x00--0x1F): 3.0V -- 5.0V\n");
-#else
-					warpPrint("\r\t- '8' HDC1000			(0x00--0x1F): 3.0V -- 5.0V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVSI7021)
-					warpPrint("\r\t- '9' SI7021			(0x00--0x0F): 1.9V -- 3.6V\n");
-#else
-					warpPrint("\r\t- '9' SI7021			(0x00--0x0F): 1.9V -- 3.6V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVL3GD20H)
-					warpPrint("\r\t- 'a' L3GD20H			(0x0F--0x39): 2.2V -- 3.6V\n");
-#else
-					warpPrint("\r\t- 'a' L3GD20H			(0x0F--0x39): 2.2V -- 3.6V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVBME680)
-					warpPrint("\r\t- 'b' BME680			(0xAA--0xF8): 1.6V -- 3.6V\n");
-#else
-					warpPrint("\r\t- 'b' BME680			(0xAA--0xF8): 1.6V -- 3.6V (compiled out) \n");
-#endif
-#if (WARP_BUILD_ENABLE_DEVBNO055)
-					warpPrint("\r\t- 'M' BNO055			(0x0D--0x75): 2.7V -- 3.6V\n");					
-#else
-					warpPrint("\r\t- 'M' BNO055			(0x0D--0x75): 2.7V -- 3.6V (compiled out) \n");					
-#endif
-#if (WARP_BUILD_ENABLE_DEVRF430CL331H)
-					warpPrint("\r\t- 'M' RF430CL331H			(0x0D--0x75): 3V -- 3.6V\n");					
-#else
-					warpPrint("\r\t- 'M' RF430CL331H			(0x0D--0x75): 3V -- 3.6V (compiled out) \n");					
-#endif
-#if (WARP_BUILD_ENABLE_DEVTCS34725)
-					warpPrint("\r\t- 'd' TCS34725			(0x00--0x1D): 2.7V -- 3.3V\n");
-#else
-					warpPrint("\r\t- 'd' TCS34725			(0x00--0x1D): 2.7V -- 3.3V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVSI4705)
-					warpPrint("\r\t- 'e' SI4705			(n/a):        2.7V -- 5.5V\n");
-#else
-					warpPrint("\r\t- 'e' SI4705			(n/a):        2.7V -- 5.5V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVCCS811)
-					warpPrint("\r\t- 'g' CCS811			(0x00--0xFF): 1.8V -- 3.6V\n");
-#else
-					warpPrint("\r\t- 'g' CCS811			(0x00--0xFF): 1.8V -- 3.6V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVAMG8834)
-					warpPrint("\r\t- 'h' AMG8834			(0x00--?): 3.3V -- 3.3V\n");
-#else
-					warpPrint("\r\t- 'h' AMG8834			(0x00--?): 3.3V -- 3.3V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVAS7262)
-					warpPrint("\r\t- 'j' AS7262			(0x00--0x2B): 2.7V -- 3.6V\n");
-#else
-					warpPrint("\r\t- 'j' AS7262			(0x00--0x2B): 2.7V -- 3.6V (compiled out) \n");
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVAS7263)
-					warpPrint("\r\t- 'k' AS7263			(0x00--0x2B): 2.7V -- 3.6V\n");
-#else
-					warpPrint("\r\t- 'k' AS7263			(0x00--0x2B): 2.7V -- 3.6V (compiled out) \n");
-#endif
-
-				warpPrint("\r\tEnter selection> ");
-				key = warpWaitKey();
-
-				switch(key)
-				{
-#if (WARP_BUILD_ENABLE_DEVADXL362)
-					case '1':
-					{
-						menuTargetSensor = kWarpSensorADXL362;
-
-						break;
-					}
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVBMX055)
-					case '2':
-					{
-						menuTargetSensor = kWarpSensorBMX055accel;
-							menuI2cDevice = &deviceBMX055accelState;
-						break;
-					}
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVBMX055)
-					case '3':
-					{
-						menuTargetSensor = kWarpSensorBMX055gyro;
-							menuI2cDevice = &deviceBMX055gyroState;
-						break;
-					}
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVBMX055)
-					case '4':
-					{
-						menuTargetSensor = kWarpSensorBMX055mag;
-							menuI2cDevice = &deviceBMX055magState;
-						break;
-					}
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVMMA8451Q)
-					case '5':
-					{
-						menuTargetSensor = kWarpSensorMMA8451Q;
-							menuI2cDevice = &deviceMMA8451QState;
-						break;
-					}
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVINA219)
-					case 'I':
-					{
-						menuTargetSensor = kWarpSensorINA219;
-						menuI2cDevice = &deviceINA219State;
-						break;
-					}
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVLPS25H)
-					case '6':
-					{
-						menuTargetSensor = kWarpSensorLPS25H;
-							menuI2cDevice = &deviceLPS25HState;
-						break;
-					}
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVMAG3110)
-					case '7':
-					{
-						menuTargetSensor = kWarpSensorMAG3110;
-							menuI2cDevice = &deviceMAG3110State;
-						break;
-					}
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVHDC1000)
-					case '8':
-					{
-						menuTargetSensor = kWarpSensorHDC1000;
-							menuI2cDevice = &deviceHDC1000State;
-						break;
-					}
-#endif
-
-#if (WARP_BUILD_ENABLE_DEVSI7021)
-					case '9':
-					{
-						menuTargetSensor = kWarpSensorSI7021;
-						menuI2cDevice = &deviceSI7021State;
-						break;
-					}
-#endif
-#if (WARP_BUILD_ENABLE_DEVL3GD20H)
-					case 'a':
-					{
-						menuTargetSensor = kWarpSensorL3GD20H;
-						menuI2cDevice = &deviceL3GD20HState;
-						break;
-					}
-#endif
-#if (WARP_BUILD_ENABLE_DEVBME680)
-					case 'b':
-					{
-						menuTargetSensor = kWarpSensorBME680;
-						menuI2cDevice = &deviceBME680State;
-						break;
-					}
-#endif
-#if (WARP_BUILD_ENABLE_DEVBNO055)
-						case 'M':
-						{
-							readSensorRegisterBNO055(0x00 , 1);
-							warpPrint("BNO055 chip ID: %x\n", deviceBNO055State.i2cBuffer[0]);
-							readSensorRegisterBNO055(0x3D  , 1);
-							warpPrint("BNO055 OPR_MODE: %x\n", deviceBNO055State.i2cBuffer[0]);
-							readSensorRegisterBNO055(0x3E  , 1);
-							warpPrint("BNO055 PWR_MODE: %x\n", deviceBNO055State.i2cBuffer[0]);
-							menuTargetSensor = kWarpSensorBNO055;
-							menuI2cDevice = &deviceBNO055State;
-							break;
-						}
-#endif
-#if (WARP_BUILD_ENABLE_DEVERF430CL331H)
-					case 'N':
-					{
-						menuTargetSensor 	= kWarpSensorERF430CL331H;
-						menuI2cDevice 		= &deviceERF430CL331HState;
-						break;
-					}
-#endif
-#if (WARP_BUILD_ENABLE_DEVTCS34725)
-					case 'd':
-					{
-						menuTargetSensor = kWarpSensorTCS34725;
-						menuI2cDevice = &deviceTCS34725State;
-						break;
-					}
-#endif
-#if (WARP_BUILD_ENABLE_DEVSI4705)
-					case 'e':
-					{
-						menuTargetSensor = kWarpSensorSI4705;
-						menuI2cDevice = &deviceSI4705State;
-						break;
-					}
-#endif
-#if (WARP_BUILD_ENABLE_DEVCCS811)
-					case 'g':
-					{
-						menuTargetSensor = kWarpSensorCCS811;
-						menuI2cDevice = &deviceCCS811State;
-						break;
-					}
-#endif
-#if (WARP_BUILD_ENABLE_DEVAMG8834)
-					case 'h':
-					{
-						menuTargetSensor = kWarpSensorAMG8834;
-						menuI2cDevice = &deviceAMG8834State;
-						break;
-					}
-#endif
-#if (WARP_BUILD_ENABLE_DEVAS7262)
-					case 'j':
-					{
-						menuTargetSensor = kWarpSensorAS7262;
-						menuI2cDevice = &deviceAS7262State;
-						break;
-					}
-#endif
-#if (WARP_BUILD_ENABLE_DEVAS7263)
-					case 'k':
-					{
-						menuTargetSensor = kWarpSensorAS7263;
-						menuI2cDevice = &deviceAS7263State;
-						break;
-					}
-#endif
-					default:
-					{
-						warpPrint("\r\tInvalid selection '%c' !\n", key);
-					}
-				}
-
-				break;
-			}
-
-			/*
-			 *	Change default I2C baud rate
-			 */
-			case 'b':
-			{
-				warpPrint("\r\n\tSet I2C baud rate in kbps (e.g., '0001')> ");
-				gWarpI2cBaudRateKbps = read4digits();
-
-				/*
-				 *	Round 9999kbps to 10Mbps
-				 */
-				if (gWarpI2cBaudRateKbps == 9999)
-				{
-					gWarpI2cBaudRateKbps = 10000;
-				}
-
-				warpPrint("\r\n\tI2C baud rate set to %d kb/s", gWarpI2cBaudRateKbps);
-
-				break;
-			}
-
-			/*
-			 *	Change default SPI baud rate
-			 */
-			case 'c':
-			{
-				warpPrint("\r\n\tSet SPI baud rate in kbps (e.g., '0001')> ");
-				gWarpSpiBaudRateKbps = read4digits();
-
-				/*
-				 *	Round 9999kbps to 10Mbps
-				 */
-				if (gWarpSpiBaudRateKbps == 9999)
-				{
-					gWarpSpiBaudRateKbps = 10000;
-				}
-
-				warpPrint("\r\n\tSPI baud rate: %d kb/s", gWarpSpiBaudRateKbps);
-
-				break;
-			}
-
-			/*
-			 *	Change default UART baud rate
-			 */
-			case 'd':
-			{
-				warpPrint("\r\n\tSet UART baud rate in kbps (e.g., '0001')> ");
-				gWarpUartBaudRateBps = read4digits();
-				warpPrint("\r\n\tUART baud rate: %d kb/s", gWarpUartBaudRateBps);
-
-				break;
-			}
-
-			/*
-			 *	Set register address for subsequent operations
-			 */
-			case 'e':
-			{
-				warpPrint("\r\n\tEnter 2-nybble register hex address (e.g., '3e')> ");
-				menuRegisterAddress = readHexByte();
-				warpPrint("\r\n\tEntered [0x%02x].\n\n", menuRegisterAddress);
-
-				break;
-			}
-
-			/*
-			 *	Write byte to sensor
-			 */
-			case 'f':
-			{
-				uint8_t		i2cAddress, payloadByte[1], commandByte[1];
-				i2c_status_t	i2cStatus;
-				WarpStatus	status;
-
-
-				USED(status);
-				warpPrint("\r\n\tEnter I2C addr. (e.g., '0f') or '99' for SPI > ");
-				i2cAddress = readHexByte();
-				warpPrint("\r\n\tEntered [0x%02x].\n", i2cAddress);
-
-				warpPrint("\r\n\tEnter hex byte to send (e.g., '0f')> ");
-				payloadByte[0] = readHexByte();
-				warpPrint("\r\n\tEntered [0x%02x].\n", payloadByte[0]);
-
-				if (i2cAddress == 0x99)
-				{
-#if (WARP_BUILD_ENABLE_DEVADXL362)
-					warpPrint("\r\n\tWriting [0x%02x] to SPI register [0x%02x]...\n", payloadByte[0], menuRegisterAddress);
-					status = writeSensorRegisterADXL362(	0x0A			/*	command == write register	*/,
-										menuRegisterAddress,
-										payloadByte[0]		/*	writeValue			*/,
-										1			/*	numberOfBytes			*/
-					);
-					if (status != kWarpStatusOK)
-					{
-						warpPrint("\r\n\tSPI write failed, error %d.\n\n", status);
-					}
-#else
-					warpPrint("\r\n\tSPI write failed. ADXL362 Disabled");
-#endif
-				}
-				else
-				{
-					i2c_device_t slave =
-					{
-						.address = i2cAddress,
-						.baudRate_kbps = gWarpI2cBaudRateKbps
-					};
-
-					warpScaleSupplyVoltage(gWarpCurrentSupplyVoltage);
-					warpEnableI2Cpins();
-
-					commandByte[0] = menuRegisterAddress;
-					i2cStatus = I2C_DRV_MasterSendDataBlocking(
-											0 /* I2C instance */,
-											&slave,
-											commandByte,
-											1,
-											payloadByte,
-											1,
-						 gWarpI2cTimeoutMilliseconds);
-					if (i2cStatus != kStatus_I2C_Success)
-					{
-						warpPrint("\r\n\tI2C write failed, error %d.\n\n", i2cStatus);
-					}
-					warpDisableI2Cpins();
-				}
-
-				/*
-				 *	NOTE: do not disable the supply here, because we typically want to build on the effect of this register write command.
-				 */
-
-				break;
-			}
-
-			/*
-			 *	Configure default TPS62740 voltage
-			 */
-			case 'g':
-			{
-				warpPrint("\r\n\tOverride sensor supply voltage in mV (e.g., '1800')> ");
-				gWarpCurrentSupplyVoltage = read4digits();
-				warpPrint("\r\n\tOverride sensor supply voltage set to %d mV", gWarpCurrentSupplyVoltage);
-
-				break;
-			}
-
-			/*
-			 *	Activate low-power modes in all sensors.
-			 */
-			case 'h':
-			{
-				warpPrint("\r\n\tNOTE: First power sensors and enable I2C\n\n");
-				activateAllLowPowerSensorModes(true /* verbose */);
-				break;
-			}
-
-			/*
-			 *	Start repeated read
-			 */
-			case 'j':
-			{
-				bool		autoIncrement, chatty;
-				int		spinDelay, repetitionsPerAddress, chunkReadsPerAddress;
-				int		adaptiveSssupplyMaxMillivolts;
-				uint8_t		referenceByte;
-
-				warpPrint("\r\n\tAuto-increment from base address 0x%02x? ['0' | '1']> ", menuRegisterAddress);
-				autoIncrement = warpWaitKey() - '0';
-
-				warpPrint("\r\n\tChunk reads per address (e.g., '1')> ");
-				chunkReadsPerAddress = warpWaitKey() - '0';
-
-				warpPrint("\r\n\tChatty? ['0' | '1']> ");
-				chatty = warpWaitKey() - '0';
-
-				warpPrint("\r\n\tInter-operation spin delay in milliseconds (e.g., '0000')> ");
-				spinDelay = read4digits();
-
-				warpPrint("\r\n\tRepetitions per address (e.g., '0000')> ");
-				repetitionsPerAddress = read4digits();
-
-				warpPrint("\r\n\tMaximum voltage for adaptive supply (e.g., '0000')> ");
-				adaptiveSssupplyMaxMillivolts = read4digits();
-
-				warpPrint("\r\n\tReference byte for comparisons (e.g., '3e')> ");
-				referenceByte = readHexByte();
-
-				warpPrint("\r\n\tRepeating dev%d @ 0x%02x, reps=%d, pull=%d, delay=%dms:\n\n",
-					menuTargetSensor, menuRegisterAddress, repetitionsPerAddress, spinDelay);
-
-				repeatRegisterReadForDeviceAndAddress(	menuTargetSensor /*warpSensorDevice*/,
-									menuRegisterAddress /*baseAddress */,
-									autoIncrement /*autoIncrement*/,
-									chunkReadsPerAddress,
-									chatty,
-									spinDelay,
-									repetitionsPerAddress,
-									gWarpCurrentSupplyVoltage,
-									adaptiveSssupplyMaxMillivolts,
-									referenceByte
-								);
-
-				break;
-			}
-
-			/*
-			 *	Sleep for 30 seconds.
-			 */
-			case 'k':
-			{
-				warpPrint("\r\n\tSleeping until system reset...\n");
-				sleepUntilReset();
-
-				break;
-			}
-
-			/*
-			 *	Send repeated byte on I2C or SPI
-			 */
-			case 'l':
-			case 'm':
-			{
-				uint8_t		outBuffer[1];
-				int		repetitions;
-
-				warpPrint("\r\n\tNOTE: First power sensors and enable I2C\n\n");
-				warpPrint("\r\n\tByte to send (e.g., 'F0')> ");
-				outBuffer[0] = readHexByte();
-
-				warpPrint("\r\n\tRepetitions (e.g., '0000')> ");
-				repetitions = read4digits();
-
-				if (key == 'l')
-				{
-					warpPrint("\r\n\tSending %d repetitions of [0x%02x] on I2C, sensor supply voltage=%dmV\n\n",
-							  repetitions, outBuffer[0], gWarpCurrentSupplyVoltage);
-					for (int i = 0; i < repetitions; i++)
-					{
-						writeByteToI2cDeviceRegister(0xFF, true /* sedCommandByte */, outBuffer[0] /* commandByte */, false /* sendPayloadByte */, 0 /* payloadByte */);
-					}
-				}
-				else
-				{
-					warpPrint("\r\n\tSending %d repetitions of [0x%02x] on SPI, sensor supply voltage=%dmV\n\n",
-							  repetitions, outBuffer[0], gWarpCurrentSupplyVoltage);
-					for (int i = 0; i < repetitions; i++)
-					{
-						writeBytesToSpi(outBuffer /* payloadByte */, 1 /* payloadLength */);
-					}
-				}
-
-				break;
-			}
-
-			/*
-			 *	enable sensor supply voltage
-			 */
-			case 'n':
-			{
-				warpScaleSupplyVoltage(gWarpCurrentSupplyVoltage);
-				break;
-			}
-
-			/*
-			 *	disable SSSUPPLY
-			 */
-			case 'o':
-			{
-				warpDisableSupplyVoltage();
-				break;
-			}
-
-			/*
-			 *	Switch to VLPR
-			 */
-			case 'p':
-			{
-				status = warpSetLowPowerMode(kWarpPowerModeVLPR, 0 /* sleep seconds : irrelevant here */);
-				if ((status != kWarpStatusOK) && (status != kWarpStatusPowerTransitionErrorVlpr2Vlpr))
-				{
-					warpPrint("warpSetLowPowerMode(kWarpPowerModeVLPR, 0 /* sleep seconds : irrelevant here */)() failed...\n");
-				}
-
-				break;
-			}
-
-			/*
-			 *	Switch to RUN
-			 */
-			case 'r':
-			{
-				warpSetLowPowerMode(kWarpPowerModeRUN, 0 /* sleep seconds : irrelevant here */);
-				if (status != kWarpStatusOK)
-				{
-					warpPrint("warpSetLowPowerMode(kWarpPowerModeRUN, 0 /* sleep seconds : irrelevant here */)() failed...\n");
-				}
-
-				break;
-			}
-
-			/*
-			 *	Power up all sensors
-			 */
-			case 's':
-			{
-				warpPrint("\r\n\tNOTE: First power sensors and enable I2C\n\n");
-				powerupAllSensors();
-				break;
-			}
-
-			/*
-			 *	Dump processor state
-			 */
-			case 't':
-			{
-				dumpProcessorState();
-				break;
-			}
-
-			case 'u':
-			{
-				if (menuI2cDevice == NULL)
-				{
-					warpPrint("\r\n\tCannot set I2C address: First set the default I2C device.\n");
-				}
-				else
-				{
-					warpPrint("\r\n\tSet I2C address of the selected sensor(e.g., '1C')> ");
-					uint8_t address = readHexByte();
-					menuI2cDevice->i2cAddress = address;
-				}
-
-				break;
-			}
-#if (WARP_BUILD_ENABLE_DEVRV8803C7)
-			case 'v':
-			{
-				warpPrint("\r\n\tSleeping for 3 seconds, then resetting\n");
-				warpSetLowPowerMode(kWarpPowerModeVLLS0, 3 /* sleep seconds */);
-				if (status != kWarpStatusOK)
-				{
-					warpPrint("warpSetLowPowerMode(kWarpPowerModeVLLS0, 3 /* sleep seconds : irrelevant here */)() failed...\n");
-				}
-
-				warpPrint("\r\n\tThis should never happen...\n");
-
-				break;
-			}
-#endif
-			/*
-			 *	Simply spin for 10 seconds. Since the SWD pins should only be enabled when we are waiting for key at top of loop (or toggling after printf), during this time there should be no interference from the SWD.
-			 */
-			case 'x':
-			{
-				warpPrint("\r\n\tSpinning for 10 seconds...\n");
-				OSA_TimeDelay(10000);
-				warpPrint("\r\tDone.\n\n");
-
-				break;
-			}
-
-			/*
-			 *	Dump all the sensor data in one go
-			 */
-			case 'z':
-			{
-				warpPrint("\r\n\tSet the time delay between each reading in milliseconds (e.g., '1234')> ");
-				uint16_t menuDelayBetweenEachRun = read4digits();
-				warpPrint("\r\n\tDelay between read batches set to %d milliseconds.",
-						  menuDelayBetweenEachRun);
-
-#if (WARP_BUILD_ENABLE_FLASH)
-				warpPrint("\r\n\tWrite sensor data to Flash? (1 or 0)>  ");
-				key = warpWaitKey();
-				warpPrint("\n");
-				bool gWarpWriteToFlash = (key == '1' ? true : false);
-
-				if (gWarpWriteToFlash)
-				{
-					warpPrint("\r\n\tWriting to flash. Press 'q' to exit back to menu\n");
-					writeAllSensorsToFlash(menuDelayBetweenEachRun, true /* loopForever */);
-				}
-				else
-#endif
-				{
-					bool		hexModeFlag;
-
-					warpPrint("\r\n\tHex or converted mode? ('h' or 'c')> ");
-					key = warpWaitKey();
-					hexModeFlag = (key == 'h' ? true : false);
-					warpPrint("\n");
-					printAllSensors(true /* printHeadersAndCalibration */, hexModeFlag,
-								menuDelayBetweenEachRun, true /* loopForever */);
-				}
-
-				warpDisableI2Cpins();
-				break;
-			}
-
-			/*
-			 *	Read bytes from Flash and print as hex
-			 */
-			case 'R':
-			{
-				/* read from the page */
-				WarpStatus status;
-
-				status = flashReadAllMemory();
-				if (status != kWarpStatusOK)
-				{
-					warpPrint("\r\n\tflashReadAllMemory failed: %d", status);
-				}
-				break;
-			}
-
-			case 'Z':
-			{
-#if (WARP_BUILD_ENABLE_DEVAT45DB)
-				warpPrint("\r\n\tResetting Flash\n");
-
-				WarpStatus status;
-
-				status = resetAT45DB();
-
-				if (status != kWarpStatusOK)
-				{
-					warpPrint("\r\n\tsetAT45DBStartOffset failed: %d", status);
-					break;
-				}
-
-				warpPrint("\r\n\tFlash reset\n");
-
-				break;
-
-#else
-				// warpPrint("\r\n\tFlash not enabled\n");
-				// break;
-#endif
-#if (WARP_BUILD_ENABLE_DEVIS25xP)
-				warpPrint("\r\n\tResetting Flash\n");
-				WarpStatus status;
-				status = resetIS25xP();
-				if (status != kWarpStatusOK)
-				{
-					warpPrint("\r\n\tresetIS25xP failed: %d", status);
-					break;
-				}
-				warpPrint("\r\n\tFlash reset\n");
-				break;
-#else
-				warpPrint("\r\n\tFlash not enabled\n");
-				break;
-#endif
-			}
-
-/*
- *	Write raw bytes read from console to Flash
- */
-#if (WARP_BUILD_ENABLE_DEVIS25xP)
-			case 'F':
-			{
-				warpPrint("\r\n\tDevice: IS25xP"
-						  "\r\n\t'1' - Info and status registers"
-						  "\r\n\t'2' - Dump JEDEC Table");
-				warpPrint("\r\n\t'3' - Write Enable"
-						  "\r\n\t'4' - Write"
-						  "\r\n\t'5' - Chip Erase");
-				warpPrint("\r\n\tEnter selection> ");
-				key = warpWaitKey();
-				warpPrint("\n");
-
-				switch (key)
-				{
-
-					/*
-					 *	Read informational and status registers
-					 */
-					case '1':
-					{
-						uint8_t ops1[] = 
-						{
-							/* Read JEDEC ID Command */
-							0x9F, /* Instruction Code */
-							0x00, /* Dummy Receive Byte */
-							0x00, /* Dummy Receive Byte */
-							0x00, /* Dummy Receive Byte */
-						};
-						status = spiTransactionIS25xP(ops1, sizeof(ops1) /
-																sizeof(uint8_t) /* opCount */);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("SPI transaction to read JEDEC ID failed...\n");
-						}
-						else
-						{
-							warpPrint("JEDEC ID = [0x%X] [0x%X] [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[1],
-									  deviceIS25xPState.spiSinkBuffer[2],
-									  deviceIS25xPState.spiSinkBuffer[3]);
-						}
-
-						uint8_t ops2[] = 
-						{
-							/* Read Manufacturer & Device ID */
-							0x90, /* Instruction Code */
-							0x00, /* Dummy Byte 1	    */
-							0x00, /* Dummy Byte 2     */
-							0x00, /* Control. 00h: First MFID then ID. 01h: First ID then MFID.
-								   */
-							0x00, /* Dummy Receive Byte */
-							0x00, /* Dummy Receive Byte */
-						};
-						status = spiTransactionIS25xP(ops2, sizeof(ops2) /
-																sizeof(uint8_t) /* opCount */);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("SPI transaction to read Manufacturer ID failed...\n");
-						}
-						else
-						{
-							warpPrint("Manufacturer & Device ID = [0x%X] [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[4],
-									  deviceIS25xPState.spiSinkBuffer[5]);
-						}
-
-						uint8_t ops3[] = 
-						{
-							/* Read ID / Release Power Down */
-							0xAB, /* Instruction Code */
-							0x00, /* Dummy Byte */
-							0x00, /* Dummy Byte */
-							0x00, /* Dummy Byte */
-							0x00, /* Dummy Receive Byte */
-						};
-						status = spiTransactionIS25xP(ops3, sizeof(ops3) /
-																sizeof(uint8_t) /* opCount */);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("SPI transaction to read Flash ID failed...\n");
-						}
-						else
-						{
-							warpPrint("Flash ID = [0x%x]\n", deviceIS25xPState.spiSinkBuffer[4]);
-						}
-
-						uint8_t ops4[] = {
-							/* Read Status Register */
-							0x05, /* Byte0 */
-							0x00, /* Dummy Byte1 */
-						};
-						status = spiTransactionIS25xP(ops4, sizeof(ops4) /
-																sizeof(uint8_t) /* opCount */);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("SPI transaction to read Flash ID failed...\n");
-						}
-						else
-						{
-							warpPrint("Status = [" BYTE_TO_BINARY_PATTERN "]\n",
-									  BYTE_TO_BINARY(deviceIS25xPState.spiSinkBuffer[1]));
-						}
-
-						uint8_t ops5[] = {
-							/* Read Function Register */
-							0x48, /* RDFR */
-							0x00, /* Dummy Byte1 */
-						};
-						status = spiTransactionIS25xP(ops5, sizeof(ops5) /
-																sizeof(uint8_t) /* opCount */);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("SPI transaction to read Flash ID failed...\n");
-						}
-						else
-						{
-							warpPrint("RDFR = [" BYTE_TO_BINARY_PATTERN "]\n",
-									  BYTE_TO_BINARY(deviceIS25xPState.spiSinkBuffer[1]));
-						}
-
-						uint8_t ops6[] = 
-						{
-							/* Read Read Parameters */
-							0x61, /* RDRP */
-							0x00, /* Dummy Byte1 */
-						};
-						status = spiTransactionIS25xP(ops6, sizeof(ops6) /
-																sizeof(uint8_t) /* opCount */);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("SPI transaction to read Flash ID failed...\n");
-						}
-						else
-						{
-							warpPrint("ReadParam = [" BYTE_TO_BINARY_PATTERN "]\n",
-									  BYTE_TO_BINARY(deviceIS25xPState.spiSinkBuffer[1]));
-						}
-
-						uint8_t ops7[] = 
-						{
-							/* Read Extended Read Parameters */
-							0x81, /* RDERP */
-							0x00, /* Dummy Byte1 */
-						};
-						status = spiTransactionIS25xP(ops7, sizeof(ops7) /
-																sizeof(uint8_t) /* opCount */);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("SPI transaction to read Flash ID failed...\n");
-						}
-						else
-						{
-							warpPrint("ExtReadParam = [" BYTE_TO_BINARY_PATTERN "]\n",
-									  BYTE_TO_BINARY(deviceIS25xPState.spiSinkBuffer[1]));
-						}
-
-						uint8_t ops8[] = 
-						{
-							/* Read Unique ID */
-							0x4B, /* RDUID */
-							0x00, /* Dummy Byte */
-							0x00, /* Dummy Byte */
-							0x00, /* Dummy Byte */
-							0x00, /* Dummy Byte */
-							0x00, /* Receive */
-						};
-						status = spiTransactionIS25xP(ops8, sizeof(ops8) /
-																sizeof(uint8_t) /* opCount */);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("SPI transaction to read Flash ID failed...\n");
-						}
-						else
-						{
-							warpPrint("UID = [0x%X]\n", deviceIS25xPState.spiSinkBuffer[5]);
-						}
-
-						break;
-					}
-
-					/*
-					 *	Dump first 0xF addresses from JEDEC table
-					 */
-					case '2':
-					{
-						uint8_t ops[] = 
-						{
-							/* Read JEDEC Discoverable Params */
-							0x5A, /* RDSFDP */
-							0x00, /* Address Byte */
-							0x00, /* Address Byte */
-							0x00, /* Address Byte */
-							0x00, /* Dummy Byte */
-							0x00, /* Receive 0x00 */
-							0x00, /* Receive 0x01 */
-							0x00, /* Receive 0x02 */
-							0x00, /* Receive 0x03 */
-							0x00, /* Receive 0x04 */
-							0x00, /* Receive 0x05 */
-							0x00, /* Receive 0x06 */
-							0x00, /* Receive 0x07 */
-							0x00, /* Receive 0x08 */
-							0x00, /* Receive 0x09 */
-							0x00, /* Receive 0x0A */
-							0x00, /* Receive 0x0B */
-							0x00, /* Receive 0x0C */
-							0x00, /* Receive 0x0D */
-							0x00, /* Receive 0x0E */
-							0x00, /* Receive 0x0F */
-						};
-						status = spiTransactionIS25xP(ops, sizeof(ops) /
-															   sizeof(uint8_t) /* opCount */);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("SPI transaction to read Flash ID failed...\n");
-						}
-						else
-						{
-							warpPrint("SFDP[0x00] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x00]);
-							warpPrint("SFDP[0x01] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x01]);
-							warpPrint("SFDP[0x02] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x02]);
-							warpPrint("SFDP[0x03] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x03]);
-							warpPrint("SFDP[0x04] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x04]);
-							warpPrint("SFDP[0x05] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x05]);
-							warpPrint("SFDP[0x06] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x06]);
-							warpPrint("SFDP[0x07] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x07]);
-							warpPrint("SFDP[0x08] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x08]);
-							warpPrint("SFDP[0x09] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x09]);
-							warpPrint("SFDP[0x0A] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x0A]);
-							warpPrint("SFDP[0x0B] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x0B]);
-							warpPrint("SFDP[0x0C] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x0C]);
-							warpPrint("SFDP[0x0D] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x0D]);
-							warpPrint("SFDP[0x0E] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x0E]);
-							warpPrint("SFDP[0x0F] = [0x%X]\n",
-									  deviceIS25xPState.spiSinkBuffer[5 + 0x0F]);
-						}
-						break;
-					}
-					/*
-					 *	Write Enable
-					 */
-					case '3':
-					{
-						WarpStatus status;
-						uint8_t	   ops[] = 
-						{
-							   0x06, /* WREN */
-						};
-
-						status = spiTransactionIS25xP(ops, 1);
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("\r\n\tCommunication failed: %d", status);
-						}
-						else
-						{
-							warpPrint("OK.\n");
-						}
-
-						break;
-					}
-
-					/*
-					 *	Perform a write
-					 */
-					case '4':
-					{
-						WarpStatus status;
-						uint8_t	   buf[32] = {0};
-						for (size_t j = 0; j < 11; j++)
-						{
-							enableIS25xPWrite();
-							for (size_t i = 0; i < 32; i++)
-							{
-								buf[i] = i * j;
-							}
-							status = writeToIS25xPFromEnd(32, buf);
-							if (status != kWarpStatusOK)
-							{
-								warpPrint("\r\n\tProgramIS25xP failed: %d", status);
-							}
-							else
-							{
-								warpPrint("OK.\n");
-							}
-						}
-						break;
-					}
-
-					/*
-					 *	Erase chip (reset to 0xFF)
-					 */
-					case '5':
-					{
-						WarpStatus status;
-						status = chipEraseIS25xP();
-						if (status != kWarpStatusOK)
-						{
-							warpPrint("\r\n\tCommunication failed: %d", status);
-						}
-						else
-						{
-							warpPrint("OK.\n");
-						}
-
-						break;
-					}
-					default:
-					{
-						warpPrint("\r\n\tInvalid selection.");
-						break;
-					}
-				}
-				break;
-			}
-#endif
-
-			/*
-			 *	Use data from Flash to program FPGA
-			 */
-			case 'P':
-			{
-				warpPrint("\r\n\tStart address (e.g., '0000')> ");
-				// xx = read4digits();
-
-				warpPrint("\r\n\tNumber of bytes to use (e.g., '0000')> ");
-				// xx = read4digits();
-
-				break;
-			}
-
-			/*
-			 *	Ignore naked returns.
-			 */
-			case '\n':
-			{
-				warpPrint("\r\tPayloads make rockets more than just fireworks.");
-				break;
-			}
-
-			default:
-			{
-				warpPrint("\r\tInvalid selection '%c' !\n", key);
-			}
-		}
-	}
+	// Flash onboard RGB
+	PORT_HAL_SetMuxMode(PORTB_BASE, 10u, kPortMuxAsGpio);
+	GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 10));
+	OSA_TimeDelay(500);
+	GPIO_DRV_ClearPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 10));
+	OSA_TimeDelay(500);
+	GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 10));
+	OSA_TimeDelay(500);
+	GPIO_DRV_ClearPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 10));
+	OSA_TimeDelay(500);
+	GPIO_DRV_SetPinOutput(GPIO_MAKE_PIN(HW_GPIOB, 10));
+	OSA_TimeDelay(500);
+
+	orientationDetector();
+
+	// #if (WARP_BUILD_ENABLE_DEVSSD1331)
+	// 	// Flash OLED
+	// 	devSSD1331init();
+	// 	printGreenRectSSD1331();
+	// 	OSA_TimeDelay(500);
+	// 	clearScreenSSD1331();
+	// 	OSA_TimeDelay(500);	
+	// 	printGreenRectSSD1331();
+	// 	OSA_TimeDelay(500);
+	// #endif
+
+	// #if (WARP_BUILD_ENABLE_DEVINA219)
+	// 	configureSensorINA219();
+	// #endif
+
+// 	while (1)
+// 	{
+// 		/*
+// 		 *	Do not, e.g., lowPowerPinStates() on each iteration, because we actually
+// 		 *	want to use menu to progressiveley change the machine state with various
+// 		 *	commands.
+// 		 */
+// 		gWarpExtraQuietMode = false;
+// 		printBootSplash(gWarpCurrentSupplyVoltage, menuRegisterAddress, &powerManagerCallbackStructure);
+
+// 		warpPrint("\rSelect:\n");
+// 		warpPrint("\r- 'a': set default sensor.\n");
+// 		warpPrint("\r- 'b': set I2C baud rate.\n");
+// 		warpPrint("\r- 'c': set SPI baud rate.\n");
+// 		warpPrint("\r- 'd': set UART baud rate.\n");
+// 		warpPrint("\r- 'e': set default register address.\n");
+// 		warpPrint("\r- 'f': write byte to sensor.\n");
+// 		warpPrint("\r- 'g': set default sensor supply voltage.\n");
+// 		warpPrint("\r- 'h': powerdown command to all sensors.\n");
+// 		warpPrint("\r- 'i': set pull-up enable value.\n");
+// 		warpPrint("\r- 'j': repeat read reg 0x%02x on sensor #%d.\n", menuRegisterAddress, menuTargetSensor);
+// 		warpPrint("\r- 'k': sleep until reset.\n");
+// 		warpPrint("\r- 'l': send repeated byte on I2C.\n");
+// 		warpPrint("\r- 'm': send repeated byte on SPI.\n");
+// 		warpPrint("\r- 'n': enable sensor supply voltage.\n");
+// 		warpPrint("\r- 'o': disable sensor supply voltage.\n");
+// 		warpPrint("\r- 'p': switch to VLPR mode.\n");
+// 		warpPrint("\r- 'r': switch to RUN mode.\n");
+// 		warpPrint("\r- 's': power up all sensors.\n");
+// 		warpPrint("\r- 't': dump processor state.\n");
+// 		warpPrint("\r- 'u': set I2C address.\n");
+
+// #if (WARP_BUILD_ENABLE_DEVAT45DB)
+// 		warpPrint("\r- 'R': read bytes from Flash.\n");
+// 		warpPrint("\r- 'Z': reset Flash.\n");
+// #elif (WARP_BUILD_ENABLE_DEVIS25xP)
+// 		warpPrint("\r- 'R': read bytes from Flash.\n");
+// 		warpPrint("\r- 'F': Open Flash menu.\n");
+// 		warpPrint("\r- 'Z': reset Flash.\n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVICE40)
+// 		warpPrint("\r- 'P': write bytes to FPGA configuration.\n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVRV8803C7)
+// 		warpPrint("\r- 'v': Enter VLLS0 low-power mode for 3s, then reset\n");
+// #endif
+
+// 		warpPrint("\r- 'x': disable SWD and spin for 10 secs.\n");
+// 		warpPrint("\r- 'z': perpetually dump all sensor data.\n");
+
+// 		warpPrint("\rEnter selection> ");
+// 		key = warpWaitKey();
+
+// 		switch (key)
+// 		{
+// 			/*
+// 			 *		Select sensor
+// 			 */
+// 			case 'a':
+// 			{
+// 				warpPrint("\r\tSelect:\n");
+
+// #if (WARP_BUILD_ENABLE_DEVADXL362)
+// 					warpPrint("\r\t- '1' ADXL362			(0x00--0x2D): 1.6V -- 3.5V\n");
+// #else
+// 					warpPrint("\r\t- '1' ADXL362			(0x00--0x2D): 1.6V -- 3.5V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVBMX055)
+// 				warpPrint("\r\t- '2' BMX055accel		(0x00--0x3F): 2.4V -- 3.6V\n");
+// 				warpPrint("\r\t- '3' BMX055gyro		(0x00--0x3F): 2.4V -- 3.6V\n");
+// 					warpPrint("\r\t- '4' BMX055mag			(0x40--0x52): 2.4V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- '2' BMX055accel 		(0x00--0x3F): 2.4V -- 3.6V (compiled out) \n");
+// 					warpPrint("\r\t- '3' BMX055gyro			(0x00--0x3F): 2.4V -- 3.6V (compiled out) \n");
+// 					warpPrint("\r\t- '4' BMX055mag			(0x40--0x52): 2.4V -- 3.6V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVMMA8451Q)
+// 					warpPrint("\r\t- '5' MMA8451Q			(0x00--0x31): 1.95V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- '5' MMA8451Q			(0x00--0x31): 1.95V -- 3.6V (compiled out) \n");
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVINA219)
+// 					warpPrint("\r\t- 'I' INA219				(0x00--0x05): \n");
+// #else
+// 					warpPrint("\r\t- 'I' INA219				(0x00--0x05): (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVLPS25H)
+// 					warpPrint("\r\t- '6' LPS25H			(0x08--0x24): 1.7V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- '6' LPS25H			(0x08--0x24): 1.7V -- 3.6V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVMAG3110)
+// 					warpPrint("\r\t- '7' MAG3110			(0x00--0x11): 1.95V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- '7' MAG3110			(0x00--0x11): 1.95V -- 3.6V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVHDC1000)
+// 					warpPrint("\r\t- '8' HDC1000			(0x00--0x1F): 3.0V -- 5.0V\n");
+// #else
+// 					warpPrint("\r\t- '8' HDC1000			(0x00--0x1F): 3.0V -- 5.0V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVSI7021)
+// 					warpPrint("\r\t- '9' SI7021			(0x00--0x0F): 1.9V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- '9' SI7021			(0x00--0x0F): 1.9V -- 3.6V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVL3GD20H)
+// 					warpPrint("\r\t- 'a' L3GD20H			(0x0F--0x39): 2.2V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- 'a' L3GD20H			(0x0F--0x39): 2.2V -- 3.6V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVBME680)
+// 					warpPrint("\r\t- 'b' BME680			(0xAA--0xF8): 1.6V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- 'b' BME680			(0xAA--0xF8): 1.6V -- 3.6V (compiled out) \n");
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVBNO055)
+// 					warpPrint("\r\t- 'M' BNO055			(0x0D--0x75): 2.7V -- 3.6V\n");					
+// #else
+// 					warpPrint("\r\t- 'M' BNO055			(0x0D--0x75): 2.7V -- 3.6V (compiled out) \n");					
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVRF430CL331H)
+// 					warpPrint("\r\t- 'M' RF430CL331H			(0x0D--0x75): 3V -- 3.6V\n");					
+// #else
+// 					warpPrint("\r\t- 'M' RF430CL331H			(0x0D--0x75): 3V -- 3.6V (compiled out) \n");					
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVTCS34725)
+// 					warpPrint("\r\t- 'd' TCS34725			(0x00--0x1D): 2.7V -- 3.3V\n");
+// #else
+// 					warpPrint("\r\t- 'd' TCS34725			(0x00--0x1D): 2.7V -- 3.3V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVSI4705)
+// 					warpPrint("\r\t- 'e' SI4705			(n/a):        2.7V -- 5.5V\n");
+// #else
+// 					warpPrint("\r\t- 'e' SI4705			(n/a):        2.7V -- 5.5V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVCCS811)
+// 					warpPrint("\r\t- 'g' CCS811			(0x00--0xFF): 1.8V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- 'g' CCS811			(0x00--0xFF): 1.8V -- 3.6V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVAMG8834)
+// 					warpPrint("\r\t- 'h' AMG8834			(0x00--?): 3.3V -- 3.3V\n");
+// #else
+// 					warpPrint("\r\t- 'h' AMG8834			(0x00--?): 3.3V -- 3.3V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVAS7262)
+// 					warpPrint("\r\t- 'j' AS7262			(0x00--0x2B): 2.7V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- 'j' AS7262			(0x00--0x2B): 2.7V -- 3.6V (compiled out) \n");
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVAS7263)
+// 					warpPrint("\r\t- 'k' AS7263			(0x00--0x2B): 2.7V -- 3.6V\n");
+// #else
+// 					warpPrint("\r\t- 'k' AS7263			(0x00--0x2B): 2.7V -- 3.6V (compiled out) \n");
+// #endif
+
+// 				warpPrint("\r\tEnter selection> ");
+// 				key = warpWaitKey();
+
+// 				switch(key)
+// 				{
+// #if (WARP_BUILD_ENABLE_DEVADXL362)
+// 					case '1':
+// 					{
+// 						menuTargetSensor = kWarpSensorADXL362;
+
+// 						break;
+// 					}
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVBMX055)
+// 					case '2':
+// 					{
+// 						menuTargetSensor = kWarpSensorBMX055accel;
+// 							menuI2cDevice = &deviceBMX055accelState;
+// 						break;
+// 					}
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVBMX055)
+// 					case '3':
+// 					{
+// 						menuTargetSensor = kWarpSensorBMX055gyro;
+// 							menuI2cDevice = &deviceBMX055gyroState;
+// 						break;
+// 					}
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVBMX055)
+// 					case '4':
+// 					{
+// 						menuTargetSensor = kWarpSensorBMX055mag;
+// 							menuI2cDevice = &deviceBMX055magState;
+// 						break;
+// 					}
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVMMA8451Q)
+// 					case '5':
+// 					{
+// 						menuTargetSensor = kWarpSensorMMA8451Q;
+// 							menuI2cDevice = &deviceMMA8451QState;
+// 						break;
+// 					}
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVINA219)
+// 					case 'I':
+// 					{
+// 						menuTargetSensor = kWarpSensorINA219;
+// 						menuI2cDevice = &deviceINA219State;
+// 						break;
+// 					}
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVLPS25H)
+// 					case '6':
+// 					{
+// 						menuTargetSensor = kWarpSensorLPS25H;
+// 							menuI2cDevice = &deviceLPS25HState;
+// 						break;
+// 					}
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVMAG3110)
+// 					case '7':
+// 					{
+// 						menuTargetSensor = kWarpSensorMAG3110;
+// 							menuI2cDevice = &deviceMAG3110State;
+// 						break;
+// 					}
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVHDC1000)
+// 					case '8':
+// 					{
+// 						menuTargetSensor = kWarpSensorHDC1000;
+// 							menuI2cDevice = &deviceHDC1000State;
+// 						break;
+// 					}
+// #endif
+
+// #if (WARP_BUILD_ENABLE_DEVSI7021)
+// 					case '9':
+// 					{
+// 						menuTargetSensor = kWarpSensorSI7021;
+// 						menuI2cDevice = &deviceSI7021State;
+// 						break;
+// 					}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVL3GD20H)
+// 					case 'a':
+// 					{
+// 						menuTargetSensor = kWarpSensorL3GD20H;
+// 						menuI2cDevice = &deviceL3GD20HState;
+// 						break;
+// 					}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVBME680)
+// 					case 'b':
+// 					{
+// 						menuTargetSensor = kWarpSensorBME680;
+// 						menuI2cDevice = &deviceBME680State;
+// 						break;
+// 					}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVBNO055)
+// 						case 'M':
+// 						{
+// 							readSensorRegisterBNO055(0x00 , 1);
+// 							warpPrint("BNO055 chip ID: %x\n", deviceBNO055State.i2cBuffer[0]);
+// 							readSensorRegisterBNO055(0x3D  , 1);
+// 							warpPrint("BNO055 OPR_MODE: %x\n", deviceBNO055State.i2cBuffer[0]);
+// 							readSensorRegisterBNO055(0x3E  , 1);
+// 							warpPrint("BNO055 PWR_MODE: %x\n", deviceBNO055State.i2cBuffer[0]);
+// 							menuTargetSensor = kWarpSensorBNO055;
+// 							menuI2cDevice = &deviceBNO055State;
+// 							break;
+// 						}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVERF430CL331H)
+// 					case 'N':
+// 					{
+// 						menuTargetSensor 	= kWarpSensorERF430CL331H;
+// 						menuI2cDevice 		= &deviceERF430CL331HState;
+// 						break;
+// 					}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVTCS34725)
+// 					case 'd':
+// 					{
+// 						menuTargetSensor = kWarpSensorTCS34725;
+// 						menuI2cDevice = &deviceTCS34725State;
+// 						break;
+// 					}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVSI4705)
+// 					case 'e':
+// 					{
+// 						menuTargetSensor = kWarpSensorSI4705;
+// 						menuI2cDevice = &deviceSI4705State;
+// 						break;
+// 					}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVCCS811)
+// 					case 'g':
+// 					{
+// 						menuTargetSensor = kWarpSensorCCS811;
+// 						menuI2cDevice = &deviceCCS811State;
+// 						break;
+// 					}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVAMG8834)
+// 					case 'h':
+// 					{
+// 						menuTargetSensor = kWarpSensorAMG8834;
+// 						menuI2cDevice = &deviceAMG8834State;
+// 						break;
+// 					}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVAS7262)
+// 					case 'j':
+// 					{
+// 						menuTargetSensor = kWarpSensorAS7262;
+// 						menuI2cDevice = &deviceAS7262State;
+// 						break;
+// 					}
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVAS7263)
+// 					case 'k':
+// 					{
+// 						menuTargetSensor = kWarpSensorAS7263;
+// 						menuI2cDevice = &deviceAS7263State;
+// 						break;
+// 					}
+// #endif
+// 					default:
+// 					{
+// 						warpPrint("\r\tInvalid selection '%c' !\n", key);
+// 					}
+// 				}
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Change default I2C baud rate
+// 			 */
+// 			case 'b':
+// 			{
+// 				warpPrint("\r\n\tSet I2C baud rate in kbps (e.g., '0001')> ");
+// 				gWarpI2cBaudRateKbps = read4digits();
+
+// 				/*
+// 				 *	Round 9999kbps to 10Mbps
+// 				 */
+// 				if (gWarpI2cBaudRateKbps == 9999)
+// 				{
+// 					gWarpI2cBaudRateKbps = 10000;
+// 				}
+
+// 				warpPrint("\r\n\tI2C baud rate set to %d kb/s", gWarpI2cBaudRateKbps);
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Change default SPI baud rate
+// 			 */
+// 			case 'c':
+// 			{
+// 				warpPrint("\r\n\tSet SPI baud rate in kbps (e.g., '0001')> ");
+// 				gWarpSpiBaudRateKbps = read4digits();
+
+// 				/*
+// 				 *	Round 9999kbps to 10Mbps
+// 				 */
+// 				if (gWarpSpiBaudRateKbps == 9999)
+// 				{
+// 					gWarpSpiBaudRateKbps = 10000;
+// 				}
+
+// 				warpPrint("\r\n\tSPI baud rate: %d kb/s", gWarpSpiBaudRateKbps);
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Change default UART baud rate
+// 			 */
+// 			case 'd':
+// 			{
+// 				warpPrint("\r\n\tSet UART baud rate in kbps (e.g., '0001')> ");
+// 				gWarpUartBaudRateBps = read4digits();
+// 				warpPrint("\r\n\tUART baud rate: %d kb/s", gWarpUartBaudRateBps);
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Set register address for subsequent operations
+// 			 */
+// 			case 'e':
+// 			{
+// 				warpPrint("\r\n\tEnter 2-nybble register hex address (e.g., '3e')> ");
+// 				menuRegisterAddress = readHexByte();
+// 				warpPrint("\r\n\tEntered [0x%02x].\n\n", menuRegisterAddress);
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Write byte to sensor
+// 			 */
+// 			case 'f':
+// 			{
+// 				uint8_t		i2cAddress, payloadByte[1], commandByte[1];
+// 				i2c_status_t	i2cStatus;
+// 				WarpStatus	status;
+
+
+// 				USED(status);
+// 				warpPrint("\r\n\tEnter I2C addr. (e.g., '0f') or '99' for SPI > ");
+// 				i2cAddress = readHexByte();
+// 				warpPrint("\r\n\tEntered [0x%02x].\n", i2cAddress);
+
+// 				warpPrint("\r\n\tEnter hex byte to send (e.g., '0f')> ");
+// 				payloadByte[0] = readHexByte();
+// 				warpPrint("\r\n\tEntered [0x%02x].\n", payloadByte[0]);
+
+// 				if (i2cAddress == 0x99)
+// 				{
+// #if (WARP_BUILD_ENABLE_DEVADXL362)
+// 					warpPrint("\r\n\tWriting [0x%02x] to SPI register [0x%02x]...\n", payloadByte[0], menuRegisterAddress);
+// 					status = writeSensorRegisterADXL362(	0x0A			/*	command == write register	*/,
+// 										menuRegisterAddress,
+// 										payloadByte[0]		/*	writeValue			*/,
+// 										1			/*	numberOfBytes			*/
+// 					);
+// 					if (status != kWarpStatusOK)
+// 					{
+// 						warpPrint("\r\n\tSPI write failed, error %d.\n\n", status);
+// 					}
+// #else
+// 					warpPrint("\r\n\tSPI write failed. ADXL362 Disabled");
+// #endif
+// 				}
+// 				else
+// 				{
+// 					i2c_device_t slave =
+// 					{
+// 						.address = i2cAddress,
+// 						.baudRate_kbps = gWarpI2cBaudRateKbps
+// 					};
+
+// 					warpScaleSupplyVoltage(gWarpCurrentSupplyVoltage);
+// 					warpEnableI2Cpins();
+
+// 					commandByte[0] = menuRegisterAddress;
+// 					i2cStatus = I2C_DRV_MasterSendDataBlocking(
+// 											0 /* I2C instance */,
+// 											&slave,
+// 											commandByte,
+// 											1,
+// 											payloadByte,
+// 											1,
+// 						 gWarpI2cTimeoutMilliseconds);
+// 					if (i2cStatus != kStatus_I2C_Success)
+// 					{
+// 						warpPrint("\r\n\tI2C write failed, error %d.\n\n", i2cStatus);
+// 					}
+// 					warpDisableI2Cpins();
+// 				}
+
+// 				/*
+// 				 *	NOTE: do not disable the supply here, because we typically want to build on the effect of this register write command.
+// 				 */
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Configure default TPS62740 voltage
+// 			 */
+// 			case 'g':
+// 			{
+// 				warpPrint("\r\n\tOverride sensor supply voltage in mV (e.g., '1800')> ");
+// 				gWarpCurrentSupplyVoltage = read4digits();
+// 				warpPrint("\r\n\tOverride sensor supply voltage set to %d mV", gWarpCurrentSupplyVoltage);
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Activate low-power modes in all sensors.
+// 			 */
+// 			case 'h':
+// 			{
+// 				warpPrint("\r\n\tNOTE: First power sensors and enable I2C\n\n");
+// 				activateAllLowPowerSensorModes(true /* verbose */);
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Start repeated read
+// 			 */
+// 			case 'j':
+// 			{
+// 				bool		autoIncrement, chatty;
+// 				int		spinDelay, repetitionsPerAddress, chunkReadsPerAddress;
+// 				int		adaptiveSssupplyMaxMillivolts;
+// 				uint8_t		referenceByte;
+
+// 				warpPrint("\r\n\tAuto-increment from base address 0x%02x? ['0' | '1']> ", menuRegisterAddress);
+// 				autoIncrement = warpWaitKey() - '0';
+
+// 				warpPrint("\r\n\tChunk reads per address (e.g., '1')> ");
+// 				chunkReadsPerAddress = warpWaitKey() - '0';
+
+// 				warpPrint("\r\n\tChatty? ['0' | '1']> ");
+// 				chatty = warpWaitKey() - '0';
+
+// 				warpPrint("\r\n\tInter-operation spin delay in milliseconds (e.g., '0000')> ");
+// 				spinDelay = read4digits();
+
+// 				warpPrint("\r\n\tRepetitions per address (e.g., '0000')> ");
+// 				repetitionsPerAddress = read4digits();
+
+// 				warpPrint("\r\n\tMaximum voltage for adaptive supply (e.g., '0000')> ");
+// 				adaptiveSssupplyMaxMillivolts = read4digits();
+
+// 				warpPrint("\r\n\tReference byte for comparisons (e.g., '3e')> ");
+// 				referenceByte = readHexByte();
+
+// 				warpPrint("\r\n\tRepeating dev%d @ 0x%02x, reps=%d, pull=%d, delay=%dms:\n\n",
+// 					menuTargetSensor, menuRegisterAddress, repetitionsPerAddress, spinDelay);
+
+// 				repeatRegisterReadForDeviceAndAddress(	menuTargetSensor /*warpSensorDevice*/,
+// 									menuRegisterAddress /*baseAddress */,
+// 									autoIncrement /*autoIncrement*/,
+// 									chunkReadsPerAddress,
+// 									chatty,
+// 									spinDelay,
+// 									repetitionsPerAddress,
+// 									gWarpCurrentSupplyVoltage,
+// 									adaptiveSssupplyMaxMillivolts,
+// 									referenceByte
+// 								);
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Sleep for 30 seconds.
+// 			 */
+// 			case 'k':
+// 			{
+// 				warpPrint("\r\n\tSleeping until system reset...\n");
+// 				sleepUntilReset();
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Send repeated byte on I2C or SPI
+// 			 */
+// 			case 'l':
+// 			case 'm':
+// 			{
+// 				uint8_t		outBuffer[1];
+// 				int		repetitions;
+
+// 				warpPrint("\r\n\tNOTE: First power sensors and enable I2C\n\n");
+// 				warpPrint("\r\n\tByte to send (e.g., 'F0')> ");
+// 				outBuffer[0] = readHexByte();
+
+// 				warpPrint("\r\n\tRepetitions (e.g., '0000')> ");
+// 				repetitions = read4digits();
+
+// 				if (key == 'l')
+// 				{
+// 					warpPrint("\r\n\tSending %d repetitions of [0x%02x] on I2C, sensor supply voltage=%dmV\n\n",
+// 							  repetitions, outBuffer[0], gWarpCurrentSupplyVoltage);
+// 					for (int i = 0; i < repetitions; i++)
+// 					{
+// 						writeByteToI2cDeviceRegister(0xFF, true /* sedCommandByte */, outBuffer[0] /* commandByte */, false /* sendPayloadByte */, 0 /* payloadByte */);
+// 					}
+// 				}
+// 				else
+// 				{
+// 					warpPrint("\r\n\tSending %d repetitions of [0x%02x] on SPI, sensor supply voltage=%dmV\n\n",
+// 							  repetitions, outBuffer[0], gWarpCurrentSupplyVoltage);
+// 					for (int i = 0; i < repetitions; i++)
+// 					{
+// 						writeBytesToSpi(outBuffer /* payloadByte */, 1 /* payloadLength */);
+// 					}
+// 				}
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	enable sensor supply voltage
+// 			 */
+// 			case 'n':
+// 			{
+// 				warpScaleSupplyVoltage(gWarpCurrentSupplyVoltage);
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	disable SSSUPPLY
+// 			 */
+// 			case 'o':
+// 			{
+// 				warpDisableSupplyVoltage();
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Switch to VLPR
+// 			 */
+// 			case 'p':
+// 			{
+// 				status = warpSetLowPowerMode(kWarpPowerModeVLPR, 0 /* sleep seconds : irrelevant here */);
+// 				if ((status != kWarpStatusOK) && (status != kWarpStatusPowerTransitionErrorVlpr2Vlpr))
+// 				{
+// 					warpPrint("warpSetLowPowerMode(kWarpPowerModeVLPR, 0 /* sleep seconds : irrelevant here */)() failed...\n");
+// 				}
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Switch to RUN
+// 			 */
+// 			case 'r':
+// 			{
+// 				warpSetLowPowerMode(kWarpPowerModeRUN, 0 /* sleep seconds : irrelevant here */);
+// 				if (status != kWarpStatusOK)
+// 				{
+// 					warpPrint("warpSetLowPowerMode(kWarpPowerModeRUN, 0 /* sleep seconds : irrelevant here */)() failed...\n");
+// 				}
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Power up all sensors
+// 			 */
+// 			case 's':
+// 			{
+// 				warpPrint("\r\n\tNOTE: First power sensors and enable I2C\n\n");
+// 				powerupAllSensors();
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Dump processor state
+// 			 */
+// 			case 't':
+// 			{
+// 				dumpProcessorState();
+// 				break;
+// 			}
+
+// 			case 'u':
+// 			{
+// 				if (menuI2cDevice == NULL)
+// 				{
+// 					warpPrint("\r\n\tCannot set I2C address: First set the default I2C device.\n");
+// 				}
+// 				else
+// 				{
+// 					warpPrint("\r\n\tSet I2C address of the selected sensor(e.g., '1C')> ");
+// 					uint8_t address = readHexByte();
+// 					menuI2cDevice->i2cAddress = address;
+// 				}
+
+// 				break;
+// 			}
+// #if (WARP_BUILD_ENABLE_DEVRV8803C7)
+// 			case 'v':
+// 			{
+// 				warpPrint("\r\n\tSleeping for 3 seconds, then resetting\n");
+// 				warpSetLowPowerMode(kWarpPowerModeVLLS0, 3 /* sleep seconds */);
+// 				if (status != kWarpStatusOK)
+// 				{
+// 					warpPrint("warpSetLowPowerMode(kWarpPowerModeVLLS0, 3 /* sleep seconds : irrelevant here */)() failed...\n");
+// 				}
+
+// 				warpPrint("\r\n\tThis should never happen...\n");
+
+// 				break;
+// 			}
+// #endif
+// 			/*
+// 			 *	Simply spin for 10 seconds. Since the SWD pins should only be enabled when we are waiting for key at top of loop (or toggling after printf), during this time there should be no interference from the SWD.
+// 			 */
+// 			case 'x':
+// 			{
+// 				warpPrint("\r\n\tSpinning for 10 seconds...\n");
+// 				OSA_TimeDelay(10000);
+// 				warpPrint("\r\tDone.\n\n");
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Dump all the sensor data in one go
+// 			 */
+// 			case 'z':
+// 			{
+// 				warpPrint("\r\n\tSet the time delay between each reading in milliseconds (e.g., '1234')> ");
+// 				uint16_t menuDelayBetweenEachRun = read4digits();
+// 				warpPrint("\r\n\tDelay between read batches set to %d milliseconds.",
+// 						  menuDelayBetweenEachRun);
+
+// #if (WARP_BUILD_ENABLE_FLASH)
+// 				warpPrint("\r\n\tWrite sensor data to Flash? (1 or 0)>  ");
+// 				key = warpWaitKey();
+// 				warpPrint("\n");
+// 				bool gWarpWriteToFlash = (key == '1' ? true : false);
+
+// 				if (gWarpWriteToFlash)
+// 				{
+// 					warpPrint("\r\n\tWriting to flash. Press 'q' to exit back to menu\n");
+// 					writeAllSensorsToFlash(menuDelayBetweenEachRun, true /* loopForever */);
+// 				}
+// 				else
+// #endif
+// 				{
+// 					bool		hexModeFlag;
+
+// 					warpPrint("\r\n\tHex or converted mode? ('h' or 'c')> ");
+// 					key = warpWaitKey();
+// 					hexModeFlag = (key == 'h' ? true : false);
+// 					warpPrint("\n");
+// 					printAllSensors(true /* printHeadersAndCalibration */, hexModeFlag,
+// 								menuDelayBetweenEachRun, true /* loopForever */);
+// 				}
+
+// 				warpDisableI2Cpins();
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Read bytes from Flash and print as hex
+// 			 */
+// 			case 'R':
+// 			{
+// 				/* read from the page */
+// 				WarpStatus status;
+
+// 				status = flashReadAllMemory();
+// 				if (status != kWarpStatusOK)
+// 				{
+// 					warpPrint("\r\n\tflashReadAllMemory failed: %d", status);
+// 				}
+// 				break;
+// 			}
+
+// 			case 'Z':
+// 			{
+// #if (WARP_BUILD_ENABLE_DEVAT45DB)
+// 				warpPrint("\r\n\tResetting Flash\n");
+
+// 				WarpStatus status;
+
+// 				status = resetAT45DB();
+
+// 				if (status != kWarpStatusOK)
+// 				{
+// 					warpPrint("\r\n\tsetAT45DBStartOffset failed: %d", status);
+// 					break;
+// 				}
+
+// 				warpPrint("\r\n\tFlash reset\n");
+
+// 				break;
+
+// #else
+// 				// warpPrint("\r\n\tFlash not enabled\n");
+// 				// break;
+// #endif
+// #if (WARP_BUILD_ENABLE_DEVIS25xP)
+// 				warpPrint("\r\n\tResetting Flash\n");
+// 				WarpStatus status;
+// 				status = resetIS25xP();
+// 				if (status != kWarpStatusOK)
+// 				{
+// 					warpPrint("\r\n\tresetIS25xP failed: %d", status);
+// 					break;
+// 				}
+// 				warpPrint("\r\n\tFlash reset\n");
+// 				break;
+// #else
+// 				warpPrint("\r\n\tFlash not enabled\n");
+// 				break;
+// #endif
+// 			}
+
+// /*
+//  *	Write raw bytes read from console to Flash
+//  */
+// #if (WARP_BUILD_ENABLE_DEVIS25xP)
+// 			case 'F':
+// 			{
+// 				warpPrint("\r\n\tDevice: IS25xP"
+// 						  "\r\n\t'1' - Info and status registers"
+// 						  "\r\n\t'2' - Dump JEDEC Table");
+// 				warpPrint("\r\n\t'3' - Write Enable"
+// 						  "\r\n\t'4' - Write"
+// 						  "\r\n\t'5' - Chip Erase");
+// 				warpPrint("\r\n\tEnter selection> ");
+// 				key = warpWaitKey();
+// 				warpPrint("\n");
+
+// 				switch (key)
+// 				{
+
+// 					/*
+// 					 *	Read informational and status registers
+// 					 */
+// 					case '1':
+// 					{
+// 						uint8_t ops1[] = 
+// 						{
+// 							/* Read JEDEC ID Command */
+// 							0x9F, /* Instruction Code */
+// 							0x00, /* Dummy Receive Byte */
+// 							0x00, /* Dummy Receive Byte */
+// 							0x00, /* Dummy Receive Byte */
+// 						};
+// 						status = spiTransactionIS25xP(ops1, sizeof(ops1) /
+// 																sizeof(uint8_t) /* opCount */);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("SPI transaction to read JEDEC ID failed...\n");
+// 						}
+// 						else
+// 						{
+// 							warpPrint("JEDEC ID = [0x%X] [0x%X] [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[1],
+// 									  deviceIS25xPState.spiSinkBuffer[2],
+// 									  deviceIS25xPState.spiSinkBuffer[3]);
+// 						}
+
+// 						uint8_t ops2[] = 
+// 						{
+// 							/* Read Manufacturer & Device ID */
+// 							0x90, /* Instruction Code */
+// 							0x00, /* Dummy Byte 1	    */
+// 							0x00, /* Dummy Byte 2     */
+// 							0x00, /* Control. 00h: First MFID then ID. 01h: First ID then MFID.
+// 								   */
+// 							0x00, /* Dummy Receive Byte */
+// 							0x00, /* Dummy Receive Byte */
+// 						};
+// 						status = spiTransactionIS25xP(ops2, sizeof(ops2) /
+// 																sizeof(uint8_t) /* opCount */);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("SPI transaction to read Manufacturer ID failed...\n");
+// 						}
+// 						else
+// 						{
+// 							warpPrint("Manufacturer & Device ID = [0x%X] [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[4],
+// 									  deviceIS25xPState.spiSinkBuffer[5]);
+// 						}
+
+// 						uint8_t ops3[] = 
+// 						{
+// 							/* Read ID / Release Power Down */
+// 							0xAB, /* Instruction Code */
+// 							0x00, /* Dummy Byte */
+// 							0x00, /* Dummy Byte */
+// 							0x00, /* Dummy Byte */
+// 							0x00, /* Dummy Receive Byte */
+// 						};
+// 						status = spiTransactionIS25xP(ops3, sizeof(ops3) /
+// 																sizeof(uint8_t) /* opCount */);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("SPI transaction to read Flash ID failed...\n");
+// 						}
+// 						else
+// 						{
+// 							warpPrint("Flash ID = [0x%x]\n", deviceIS25xPState.spiSinkBuffer[4]);
+// 						}
+
+// 						uint8_t ops4[] = {
+// 							/* Read Status Register */
+// 							0x05, /* Byte0 */
+// 							0x00, /* Dummy Byte1 */
+// 						};
+// 						status = spiTransactionIS25xP(ops4, sizeof(ops4) /
+// 																sizeof(uint8_t) /* opCount */);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("SPI transaction to read Flash ID failed...\n");
+// 						}
+// 						else
+// 						{
+// 							warpPrint("Status = [" BYTE_TO_BINARY_PATTERN "]\n",
+// 									  BYTE_TO_BINARY(deviceIS25xPState.spiSinkBuffer[1]));
+// 						}
+
+// 						uint8_t ops5[] = {
+// 							/* Read Function Register */
+// 							0x48, /* RDFR */
+// 							0x00, /* Dummy Byte1 */
+// 						};
+// 						status = spiTransactionIS25xP(ops5, sizeof(ops5) /
+// 																sizeof(uint8_t) /* opCount */);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("SPI transaction to read Flash ID failed...\n");
+// 						}
+// 						else
+// 						{
+// 							warpPrint("RDFR = [" BYTE_TO_BINARY_PATTERN "]\n",
+// 									  BYTE_TO_BINARY(deviceIS25xPState.spiSinkBuffer[1]));
+// 						}
+
+// 						uint8_t ops6[] = 
+// 						{
+// 							/* Read Read Parameters */
+// 							0x61, /* RDRP */
+// 							0x00, /* Dummy Byte1 */
+// 						};
+// 						status = spiTransactionIS25xP(ops6, sizeof(ops6) /
+// 																sizeof(uint8_t) /* opCount */);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("SPI transaction to read Flash ID failed...\n");
+// 						}
+// 						else
+// 						{
+// 							warpPrint("ReadParam = [" BYTE_TO_BINARY_PATTERN "]\n",
+// 									  BYTE_TO_BINARY(deviceIS25xPState.spiSinkBuffer[1]));
+// 						}
+
+// 						uint8_t ops7[] = 
+// 						{
+// 							/* Read Extended Read Parameters */
+// 							0x81, /* RDERP */
+// 							0x00, /* Dummy Byte1 */
+// 						};
+// 						status = spiTransactionIS25xP(ops7, sizeof(ops7) /
+// 																sizeof(uint8_t) /* opCount */);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("SPI transaction to read Flash ID failed...\n");
+// 						}
+// 						else
+// 						{
+// 							warpPrint("ExtReadParam = [" BYTE_TO_BINARY_PATTERN "]\n",
+// 									  BYTE_TO_BINARY(deviceIS25xPState.spiSinkBuffer[1]));
+// 						}
+
+// 						uint8_t ops8[] = 
+// 						{
+// 							/* Read Unique ID */
+// 							0x4B, /* RDUID */
+// 							0x00, /* Dummy Byte */
+// 							0x00, /* Dummy Byte */
+// 							0x00, /* Dummy Byte */
+// 							0x00, /* Dummy Byte */
+// 							0x00, /* Receive */
+// 						};
+// 						status = spiTransactionIS25xP(ops8, sizeof(ops8) /
+// 																sizeof(uint8_t) /* opCount */);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("SPI transaction to read Flash ID failed...\n");
+// 						}
+// 						else
+// 						{
+// 							warpPrint("UID = [0x%X]\n", deviceIS25xPState.spiSinkBuffer[5]);
+// 						}
+
+// 						break;
+// 					}
+
+// 					/*
+// 					 *	Dump first 0xF addresses from JEDEC table
+// 					 */
+// 					case '2':
+// 					{
+// 						uint8_t ops[] = 
+// 						{
+// 							/* Read JEDEC Discoverable Params */
+// 							0x5A, /* RDSFDP */
+// 							0x00, /* Address Byte */
+// 							0x00, /* Address Byte */
+// 							0x00, /* Address Byte */
+// 							0x00, /* Dummy Byte */
+// 							0x00, /* Receive 0x00 */
+// 							0x00, /* Receive 0x01 */
+// 							0x00, /* Receive 0x02 */
+// 							0x00, /* Receive 0x03 */
+// 							0x00, /* Receive 0x04 */
+// 							0x00, /* Receive 0x05 */
+// 							0x00, /* Receive 0x06 */
+// 							0x00, /* Receive 0x07 */
+// 							0x00, /* Receive 0x08 */
+// 							0x00, /* Receive 0x09 */
+// 							0x00, /* Receive 0x0A */
+// 							0x00, /* Receive 0x0B */
+// 							0x00, /* Receive 0x0C */
+// 							0x00, /* Receive 0x0D */
+// 							0x00, /* Receive 0x0E */
+// 							0x00, /* Receive 0x0F */
+// 						};
+// 						status = spiTransactionIS25xP(ops, sizeof(ops) /
+// 															   sizeof(uint8_t) /* opCount */);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("SPI transaction to read Flash ID failed...\n");
+// 						}
+// 						else
+// 						{
+// 							warpPrint("SFDP[0x00] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x00]);
+// 							warpPrint("SFDP[0x01] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x01]);
+// 							warpPrint("SFDP[0x02] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x02]);
+// 							warpPrint("SFDP[0x03] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x03]);
+// 							warpPrint("SFDP[0x04] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x04]);
+// 							warpPrint("SFDP[0x05] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x05]);
+// 							warpPrint("SFDP[0x06] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x06]);
+// 							warpPrint("SFDP[0x07] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x07]);
+// 							warpPrint("SFDP[0x08] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x08]);
+// 							warpPrint("SFDP[0x09] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x09]);
+// 							warpPrint("SFDP[0x0A] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x0A]);
+// 							warpPrint("SFDP[0x0B] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x0B]);
+// 							warpPrint("SFDP[0x0C] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x0C]);
+// 							warpPrint("SFDP[0x0D] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x0D]);
+// 							warpPrint("SFDP[0x0E] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x0E]);
+// 							warpPrint("SFDP[0x0F] = [0x%X]\n",
+// 									  deviceIS25xPState.spiSinkBuffer[5 + 0x0F]);
+// 						}
+// 						break;
+// 					}
+// 					/*
+// 					 *	Write Enable
+// 					 */
+// 					case '3':
+// 					{
+// 						WarpStatus status;
+// 						uint8_t	   ops[] = 
+// 						{
+// 							   0x06, /* WREN */
+// 						};
+
+// 						status = spiTransactionIS25xP(ops, 1);
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("\r\n\tCommunication failed: %d", status);
+// 						}
+// 						else
+// 						{
+// 							warpPrint("OK.\n");
+// 						}
+
+// 						break;
+// 					}
+
+// 					/*
+// 					 *	Perform a write
+// 					 */
+// 					case '4':
+// 					{
+// 						WarpStatus status;
+// 						uint8_t	   buf[32] = {0};
+// 						for (size_t j = 0; j < 11; j++)
+// 						{
+// 							enableIS25xPWrite();
+// 							for (size_t i = 0; i < 32; i++)
+// 							{
+// 								buf[i] = i * j;
+// 							}
+// 							status = writeToIS25xPFromEnd(32, buf);
+// 							if (status != kWarpStatusOK)
+// 							{
+// 								warpPrint("\r\n\tProgramIS25xP failed: %d", status);
+// 							}
+// 							else
+// 							{
+// 								warpPrint("OK.\n");
+// 							}
+// 						}
+// 						break;
+// 					}
+
+// 					/*
+// 					 *	Erase chip (reset to 0xFF)
+// 					 */
+// 					case '5':
+// 					{
+// 						WarpStatus status;
+// 						status = chipEraseIS25xP();
+// 						if (status != kWarpStatusOK)
+// 						{
+// 							warpPrint("\r\n\tCommunication failed: %d", status);
+// 						}
+// 						else
+// 						{
+// 							warpPrint("OK.\n");
+// 						}
+
+// 						break;
+// 					}
+// 					default:
+// 					{
+// 						warpPrint("\r\n\tInvalid selection.");
+// 						break;
+// 					}
+// 				}
+// 				break;
+// 			}
+// #endif
+
+// 			/*
+// 			 *	Use data from Flash to program FPGA
+// 			 */
+// 			case 'P':
+// 			{
+// 				warpPrint("\r\n\tStart address (e.g., '0000')> ");
+// 				// xx = read4digits();
+
+// 				warpPrint("\r\n\tNumber of bytes to use (e.g., '0000')> ");
+// 				// xx = read4digits();
+
+// 				break;
+// 			}
+
+// 			/*
+// 			 *	Ignore naked returns.
+// 			 */
+// 			case '\n':
+// 			{
+// 				warpPrint("\r\tPayloads make rockets more than just fireworks.");
+// 				break;
+// 			}
+
+// 			default:
+// 			{
+// 				warpPrint("\r\tInvalid selection '%c' !\n", key);
+// 			}
+// 		}
+// 	}
 	return 0;
 }
 
@@ -3294,7 +3296,8 @@ writeAllSensorsToFlash(int menuDelayBetweenEachRun, int loopForever)
 #if (WARP_BUILD_ENABLE_DEVMMA8451Q)
 	numberOfConfigErrors += configureSensorMMA8451Q(
 		0x00, /* Payload: Disable FIFO */
-		0x01  /* Normal read 8bit, 800Hz, normal, active mode */
+		0x01, /* Normal read 8bit, 800Hz, normal, active mode */
+		0b00010000  /* Set LPF */
 	);
 	sensorBitField = sensorBitField | kWarpFlashMMA8451QBitField;
 #endif
@@ -3568,7 +3571,8 @@ printAllSensors(bool printHeadersAndCalibration, bool hexModeFlag,
 #if (WARP_BUILD_ENABLE_DEVMMA8451Q)
 	numberOfConfigErrors += configureSensorMMA8451Q(
 		0x00, /* Payload: Disable FIFO */
-		0x01  /* Normal read 8bit, 800Hz, normal, active mode */
+		0x01, /* Normal read 8bit, 800Hz, normal, active mode */
+		0b00010000  /* Set LPF */
 	);
 #endif
 
@@ -5270,3 +5274,326 @@ flashDecodeSensorBitField(uint16_t sensorBitField, uint8_t sensorIndex, uint8_t*
 	}
 }
 #endif
+
+// /*
+// * ATAN2(Y,X) FUNCTION USING CORDIC ALGORITHM
+// * Modified and fixed the bugs in https://github.com/ArcadiaLabs/wireless-head-tracker/blob/master/src/dongle/math_cordic.c
+// */
+
+// #define CORDIC_ITERATIONS 24  // Precision control (24 iterations for 24-bit accuracy)
+// #define PI 3.14159265358979f
+// #define PI_2 1.570796326794895f
+// // LUT generated in a separate Python notebook
+// static const float atan_table[CORDIC_ITERATIONS] = {
+// 	0.785398163397448279f, 0.463647609000806094f, 0.244978663126864143f, 0.124354994546761438f, 
+// 	0.062418809995957350f, 0.031239833430268277f, 0.015623728620476831f, 0.007812341060101111f, 
+// 	0.003906230131966972f, 0.001953122516478819f, 0.000976562189559319f, 0.000488281211194898f, 
+// 	0.000244140620149362f, 0.000122070311893670f, 0.000061035156174209f, 0.000030517578115526f, 
+// 	0.000015258789061316f, 0.000007629394531102f, 0.000003814697265606f, 0.000001907348632810f, 
+// 	0.000000953674316406f, 0.000000476837158203f, 0.000000238418579102f, 0.000000119209289551f
+// };
+
+// float cordic_atan2f(float y, float x) {
+//     // Constants
+// 	float result = 0.0f;
+// 	float xi, yi;
+// 	float powtwo = 1;
+// 	uint8_t cnt;
+
+//     // Handle special cases
+//     if (x == 0.0f) {
+//         if (y > 0.0f) return PI_2;
+//         if (y < 0.0f) return -PI_2;
+//         return 0.0f;
+//     }
+    
+//     // Determine the quadrant and rotate to the first quadrant
+//     if (x < 0.0f) {
+//         result = (y >= 0.0f) ? PI : -PI;
+//         x = -x;
+//         y = -y;
+//     }
+
+// 	for (cnt = 0; cnt < CORDIC_ITERATIONS; cnt++)
+// 	{
+// 		xi = x * powtwo;
+// 		yi = y * powtwo;
+
+// 		if (y < 0) {
+// 			x -= yi;
+// 			y += xi;
+// 			result -= atan_table[cnt];
+// 		} else {
+// 			x += yi;
+// 			y -= xi;
+// 			result += atan_table[cnt];
+// 		}
+
+// 		powtwo *= 0.5;
+// 	}
+
+// 	return result;
+// }
+
+// /*
+// * Fast and accurate square root method inspired by the famous Quake 3 Fast Inverse Square Root Method
+// * Achieved through bit trick and 2-iteration Newton Raphson
+// * https://www.codeproject.com/Articles/69941/Best-Square-Root-Method-Algorithm-Funktion-Precisi
+// */
+
+// float fast_sqrtf(float x) {
+//     const float x_half = 0.5f * x;
+//     union { float f; uint32_t i; } u = {x};
+    
+//     // Handle edge cases
+//     if(x == 0.0f || u.i > 0xFF800000) 
+//         return (x < 0) ? 0 : x;  // 0 for negatives
+    
+//     // Initial approximation (magic number from Fast Inverse Square Root)
+//     u.i = 0x5F375A86 - (u.i >> 1);  // Initial guess
+    
+//     // Newton-Raphson refinement (2 iterations)
+// 	// Two iterations give negligible error of 0.0002%
+//     u.f = u.f * (1.5f - x_half * u.f * u.f); 
+//     u.f = u.f * (1.5f - x_half * u.f * u.f); 
+    
+//     return x * u.f;  // Convert inverse sqrt to sqrt
+// }
+
+
+/*
+* Normal CDF function with A&S error function approximation, with an error of 1.5e-7
+* https://personal.math.ubc.ca/~cbm/aands/abramowitz_and_stegun.pdf
+*/
+
+// Polynomial approximation for error function (erf)
+double erf_approx(double x) {
+    // Constants for the approximation
+    const double a1 = 0.254829592;
+    const double a2 = -0.284496736;
+    const double a3 = 1.421413741;
+    const double a4 = -1.453152027;
+    const double a5 = 1.061405429;
+    const double p = 0.3275911;
+    
+    // Save the sign of x
+    int sign = (x >= 0) ? 1 : -1;
+    x = (x >= 0) ? x : -x;
+
+	// For large values, return 1 directly (with correct sign)
+	if (x > 4.0) return sign * 1.0;
+    
+    // Formula 7.1.26 from Abramowitz and Stegun
+    double t = 1.0 / (1.0 + p * x);
+
+    double y = 1.0 - ((((a5*t + a4)*t + a3)*t + a2)*t +a1)*t * exp(-(x * x));
+
+    return sign * y;
+}
+
+// Normal CDF implementation without math library
+double normalCDF(double x, double mean, double std_dev) {
+    // Standardise the input
+    double z = (x - mean) / (std_dev);    
+    // CDF using erf
+    double prob = 0.5 * (1.0 + erf_approx(z / 1.4142135623730950));
+	// warpPrint("normal CDF z = %d, prob = %d\n", (int32_t)(z*1000), (int32_t)(prob*1000));
+	return prob;
+
+}
+
+
+void test_math_functions(){
+	// for (float i=1; i<10; i+=0.5){
+	// 	warpPrint("sqrt(%d) is %d \n", (int32_t) (i*1000), (int32_t) (fast_sqrtf(i)*1000));
+	// }
+	// const int num_tests = 8;
+    // // float x_vals[8] = {1.0f, 0.0f, -1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 1.0f};
+    // // float y_vals[8] = {0.0f, 1.0f, 0.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f};
+	// float x_vals[8] = {-2935.440f, 0.0f, -1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 1.0f};
+    // float y_vals[8] = {2778.108f, 1.0f, 0.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f};
+	// for (int i=0; i<num_tests; ++i){
+	// 	warpPrint("y=%d, x=%d, atan2f()= %d\n", (int32_t) y_vals[i], (int32_t) x_vals[i], (int32_t) (cordic_atan2f(y_vals[i],x_vals[i])*1000));
+	// }
+	warpPrint("%lld \n", (int64_t) (normalCDF(-3, 0, 1)));
+	warpPrint("%lld \n", (int64_t) (normalCDF(-2, 0, 1)));
+	warpPrint("%lld \n", (int64_t) (normalCDF(-1, 0, 1)));
+	warpPrint("%lld \n", (int64_t) (normalCDF(0, 0, 1)));
+	warpPrint("%lld \n", (int64_t) (normalCDF(1, 0, 1)));
+	warpPrint("%lld \n", (int64_t) (normalCDF(2, 0, 1)));
+	warpPrint("%lld \n", (int64_t) (normalCDF(3, 0, 1)));
+
+}
+
+
+/*
+* Primary function to perform probabilistic orientation detector
+*/
+
+#define ACCEL_BUFFER_SIZE 50  // Change the number of samples in the 10-second period
+#define PI 3.14159265358979f
+#define PI_2 1.570796326794895f
+
+int16_t accel_value[ACCEL_BUFFER_SIZE][3]={{0}};
+int32_t running_sum_of_squares[3] = {0};
+int32_t running_sum[3] = {0};
+float running_accel_mean[3] = {0};  	// In the unit of register count, not g
+float running_accel_rand_var[3] = {0};  		// In the unit of register count, not g, the variance from random noise alone
+float running_accel_total_var_include_yz[4] = {0};	// In the unit of register count, not g, the total variance considering all uncertainties in acceleration
+float running_accel_mean_squared_include_yz[4] = {0};
+float running_angle_mean = 0;
+float running_angle_var = 0;
+int16_t tail = 0;
+  
+
+void orientationDetector(){
+	// test_math_functions();
+
+	warpPrint("Configure MMA8451Q \n");
+	configureSensorMMA8451Q(
+		0x00, /* Payload: Disable FIFO */
+		0x01, /* Normal read 8bit, 800Hz, normal, active mode */
+		0b00010000  /* Set LPF */
+	);
+	
+	warpPrint("Start \n");
+
+	// Fill up the circular buffer first
+	for (int i=0 /* don't use i*/; i<ACCEL_BUFFER_SIZE; ++i) {
+		storeSensorDataMMA8451Q(&accel_value[tail][0], &accel_value[tail][1], &accel_value[tail][2]);
+		for (int j=0; j<3; ++j) running_sum_of_squares[j] += (int64_t)(accel_value[tail][j] * accel_value[tail][j]);
+		for (int j=0; j<3; ++j) running_sum[j] += (int64_t) accel_value[tail][j];
+		tail = (tail==(ACCEL_BUFFER_SIZE-1)) ? 0 : (tail + 1);
+	}
+
+	uint32_t startTimeEachMeasurement = OSA_TimeGetMsec();
+	uint32_t measurementGapMsec = (uint32_t) 10000 / ACCEL_BUFFER_SIZE;
+	uint32_t deltaTime;
+
+	#define TOTAL_ADVANCEMENT 100000 // Set this to large value to allow continuous prediction in a sliding window
+	int window_advancement_count = 0;
+	while (window_advancement_count < TOTAL_ADVANCEMENT)
+	{
+		if (OSA_TimeGetMsec() - startTimeEachMeasurement >= measurementGapMsec)
+		{
+			// // Display the buffer
+			// for (int i=0; i<ACCEL_BUFFER_SIZE; ++i) {
+			// 	warpPrint("%d %d %d \n", accel_value[i][0], accel_value[i][1], accel_value[i][2]);
+			// }
+			startTimeEachMeasurement = OSA_TimeGetMsec();
+
+			// Step 1: Update circular buffer
+			deltaTime = OSA_TimeGetMsec();
+			// Remove old value
+			for (int j=0; j<3; ++j) running_sum_of_squares[j] -= accel_value[tail][j] * accel_value[tail][j];
+			for (int j=0; j<3; ++j) running_sum[j] -= accel_value[tail][j];
+			// Load
+			storeSensorDataMMA8451Q(&accel_value[tail][0], &accel_value[tail][1], &accel_value[tail][2]);
+			// Add new value
+			for (int j=0; j<3; ++j) running_sum_of_squares[j] += accel_value[tail][j] * accel_value[tail][j];
+			for (int j=0; j<3; ++j) running_sum[j] += accel_value[tail][j];
+
+			// Step 2: Compute mean and random noise variance of accelerometer data
+			for (int j=0; j<3; ++j) running_accel_mean[j] = (float) running_sum[j] / ACCEL_BUFFER_SIZE;
+			for (int j=0; j<3; ++j) running_accel_rand_var[j] = ((float) running_sum_of_squares[j] / ACCEL_BUFFER_SIZE) - (running_accel_mean[j]) * (running_accel_mean[j]);
+			// // Display
+			// warpPrint("running stats \n");
+			// for (int j=0; j<3; ++j) warpPrint("%d ", running_sum_of_squares[j]);
+			// for (int j=0; j<3; ++j) warpPrint("%d ", running_sum[j]);
+			// warpPrint("\n");
+			// warpPrint("Running X scaled float: Mean %d random variance %d \n", (int32_t) (running_accel_mean[0]*1000), (int32_t) (running_accel_rand_var[0]*1000));
+			// warpPrint("Running Y scaled float: Mean %d random variance %d \n", (int32_t) (running_accel_mean[1]*1000), (int32_t) (running_accel_rand_var[1]*1000));
+			// warpPrint("Running Z scaled float: Mean %d random variance %d \n", (int32_t) (running_accel_mean[2]*1000), (int32_t) (running_accel_rand_var[2]*1000));
+			warpPrint("[Time] update acc mean & variance %d ms\n", OSA_TimeGetMsec()-deltaTime);
+
+
+			// Step 3: Aggregate uncertainties of acceleration data
+			deltaTime = OSA_TimeGetMsec();
+			// [x,y,z] Sensitivity accuracy of 2.64%
+			for (int j=0; j<3; ++j) running_accel_total_var_include_yz[j] = (running_accel_mean[j]*0.0264)*(running_accel_mean[j]*0.0264);
+			// warpPrint("Sensitivity scaled float %d ", (int32_t)(running_accel_total_var_include_yz[0]*1000));
+			// warpPrint("%d ", (int32_t)(running_accel_total_var_include_yz[1]*1000));
+			// warpPrint("%d \n", (int32_t)(running_accel_total_var_include_yz[2]*1000));
+
+			// [x,y,z] Zero-g offset accuracy
+			for (int j=0; j<3; ++j) running_accel_total_var_include_yz[j] += (0.02*4096)*(0.02*4096);  // variance of pm 20mg
+			// warpPrint("Sensitivity + 0-g offset %d ", (int32_t)(running_accel_total_var_include_yz[0]*1000));
+			// warpPrint("%d ", (int32_t)(running_accel_total_var_include_yz[1]*1000));
+			// warpPrint("%d \n", (int32_t)(running_accel_total_var_include_yz[2]*1000));
+
+			// [x,y,z] Total acceleration uncertainty by including random noise
+			for (int j=0; j<3; ++j) running_accel_total_var_include_yz[j] += running_accel_rand_var[j] / ACCEL_BUFFER_SIZE;  // variance of random noise is reduced by more samples
+
+			// [x,y,z,yz] Mean squared acceleration: x, y, z, including yz
+			for (int j=0; j<3; ++j) running_accel_mean_squared_include_yz[j] = running_accel_mean[j]*running_accel_mean[j];
+			running_accel_mean_squared_include_yz[3] = running_accel_mean_squared_include_yz[1] + running_accel_mean_squared_include_yz[2];
+			float a_yz = sqrtf(running_accel_mean_squared_include_yz[3]);
+
+			// Variance of yz acceleration
+			running_accel_total_var_include_yz[3] = (running_accel_mean_squared_include_yz[1]*running_accel_total_var_include_yz[1] +  running_accel_mean_squared_include_yz[2]*running_accel_total_var_include_yz[2]) / running_accel_mean_squared_include_yz[3];
+
+			// // Print everything
+			// warpPrint("Mean squared acc unscaled  ");
+			// for (int j=0; j<4; ++j) warpPrint("%d ", (int32_t)(running_accel_mean_squared_include_yz[j]));
+			// warpPrint("\n");
+			// warpPrint("Total variance scaled  ");
+			// for (int j=0; j<4; ++j) warpPrint("%d ", (int32_t)(running_accel_total_var_include_yz[j]*1000));
+			// warpPrint("\n");
+
+			warpPrint("[Time] Acceleration uncertainty %d ms\n", OSA_TimeGetMsec()-deltaTime);
+
+
+			// Step 4: Tilt angle calculation
+			deltaTime = OSA_TimeGetMsec();
+			running_angle_mean = atan2f(a_yz, running_accel_mean[0]);
+			// warpPrint("a_yz scaled float %d \n", (int32_t) (a_yz * 1000));
+			// warpPrint("Angle radian scaled %d , sign %d\n", (int32_t) (running_angle_mean * 1000), running_angle_mean>0);
+
+			// Step 5: Uncertainty of tilt angle
+			double num_temp = running_accel_mean_squared_include_yz[0]*running_accel_total_var_include_yz[3] + running_accel_mean_squared_include_yz[3]*running_accel_total_var_include_yz[0];
+			double denom_temp = (running_accel_mean_squared_include_yz[0]+running_accel_mean_squared_include_yz[3])*(running_accel_mean_squared_include_yz[0]+running_accel_mean_squared_include_yz[3]);
+			running_angle_var = (num_temp / denom_temp);
+			double running_angle_std = sqrtf(running_angle_var);
+			warpPrint("[Time] Tilt angle mean and uncertainty %d ms \n", OSA_TimeGetMsec()-deltaTime);
+
+			// Step 6: Probability distribution
+			deltaTime = OSA_TimeGetMsec();
+			#define PORTRAIT_BOUND_LEFT 45
+			#define PORTRAIT_BOUND_RIGHT 135
+
+			float prob_portrait = normalCDF(PORTRAIT_BOUND_RIGHT, running_angle_mean* 180 / PI , running_angle_std* 180 / PI ) 
+									- normalCDF(PORTRAIT_BOUND_LEFT, running_angle_mean* 180 / PI , running_angle_std* 180 / PI );
+			float prob_landscape = 1 - prob_portrait;
+			warpPrint("[Time] Classification %d ms \n", OSA_TimeGetMsec()-deltaTime);
+
+			// Step 7: Reporting
+			deltaTime = OSA_TimeGetMsec();
+			warpPrint("New reading at %d: %d %d %d \n", tail, accel_value[tail][0], accel_value[tail][1], accel_value[tail][2]);
+			
+			// [x,y,z] Sensitivity accuracy of 2.64%
+			warpPrint("Sensitivity accuracy (*1000): [x] [y] [z]\n");
+			for (int j=0; j<3; ++j) warpPrint("%d ", (int32_t)((running_accel_mean[j]*0.0264)*(running_accel_mean[j]*0.0264)*1000));
+			warpPrint("\n");
+			// [x,y,z] Zero-g offset accuracy
+			warpPrint("Zero-g offset accuracy (*1000): [x] [y] [z]\n");
+			for (int j=0; j<3; ++j) warpPrint("%d ", (int32_t)((0.02*4096)*(0.02*4096)*1000));
+			warpPrint("\n");
+			// [x,y,z] Total acceleration uncertainty by including random noise
+			warpPrint("Reduced random noise (*1000): [x] [y] [z]\n");
+			for (int j=0; j<3; ++j) warpPrint("%d ", (int32_t)(running_accel_rand_var[j] / ACCEL_BUFFER_SIZE*1000));
+			warpPrint("\n");
+
+			warpPrint("Angle mean: %d *0.001 degree\n", (int32_t) (running_angle_mean * 180 / PI * 1000));
+			warpPrint("Angle std: %d *0.001 degree\n", (int32_t)(running_angle_std*180/PI*1000));
+			warpPrint("Probability of portrait: %d percent \n", (int16_t) (prob_portrait*100));
+			warpPrint("Probability of landscape: %d percent \n", (int16_t) (prob_landscape*100));
+			warpPrint("[Time] Reporting %d ms \n", OSA_TimeGetMsec()-deltaTime);
+
+			// Next iteration
+			tail = (tail==(ACCEL_BUFFER_SIZE-1)) ? 0 : (tail + 1);
+			window_advancement_count++;
+			warpPrint("\n");
+		}
+	}
+	warpPrint("End \n");
+}

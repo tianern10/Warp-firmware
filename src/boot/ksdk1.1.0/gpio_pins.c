@@ -174,14 +174,21 @@ gpio_output_pin_user_config_t	outputPins[] =
 		
 		
 	#elif (WARP_BUILD_ENABLE_FRDMKL03)
+		// For green LED
+		{
+			.pinName = GPIO_MAKE_PIN(HW_GPIOB, 11),
+			.config.outputLogic = 1,
+			.config.slewRate = kPortSlowSlewRate,
+			.config.driveStrength = kPortLowDriveStrength,
+		},
+		// For red LED
+		{
+			.pinName = GPIO_MAKE_PIN(HW_GPIOB, 10),
+			.config.outputLogic = 1,
+			.config.slewRate = kPortSlowSlewRate,
+			.config.driveStrength = kPortLowDriveStrength,
+		},
 		#if (WARP_BUILD_ENABLE_DEVSSD1331)
-			// For green LED
-			{
-				.pinName = GPIO_MAKE_PIN(HW_GPIOB, 11),
-				.config.outputLogic = 0,
-				.config.slewRate = kPortSlowSlewRate,
-				.config.driveStrength = kPortLowDriveStrength,
-			},
 			// GPIO pins for SPI
 			{
 				.pinName = kSSD1331PinCSn,

@@ -39,8 +39,9 @@
 void		initMMA8451Q(const uint8_t i2cAddress, uint16_t operatingVoltageMillivolts);
 WarpStatus	readSensorRegisterMMA8451Q(uint8_t deviceRegister, int numberOfBytes);
 WarpStatus	writeSensorRegisterMMA8451Q(uint8_t deviceRegister, uint8_t payloadBtye);
-WarpStatus 	configureSensorMMA8451Q(uint8_t payloadF_SETUP, uint8_t payloadCTRL_REG1);
+WarpStatus 	configureSensorMMA8451Q(uint8_t payloadF_SETUP, uint8_t payloadCTRL_REG1, uint8_t payloadHP_FILTER_CUTOFF);
 void		printSensorDataMMA8451Q(bool hexModeFlag);
+void 		storeSensorDataMMA8451Q(int16_t* buf_x, int16_t* buf_y, int16_t* buf_z);
 uint8_t		appendSensorDataMMA8451Q(uint8_t* buf);
 
 const uint8_t bytesPerMeasurementMMA8451Q            = 6;

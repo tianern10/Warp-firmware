@@ -1,0 +1,26 @@
+cd "C:\Users\User\Documents\4B25_coursework\cw4"
+
+scp ten28@cpu1.f-of-e.org:/home/students/ten28/Warp-firmware/build/ksdk1.1/work/demos/Warp/armgcc/Warp/release/Warp.srec .
+scp ten28@cpu1.f-of-e.org:/home/students/ten28/Warp-firmware/tools/scripts/warp.jlink.commands .
+scp ten28@cpu1.f-of-e.org:/home/students/ten28/Warp-firmware/src/boot/ksdk1.1.0/devSSD1331.c .
+
+."C:\Program Files\SEGGER\JLink_V812e\JLink.exe" -device MKL03Z32XXX4 -if SWD -speed 10000 -CommanderScript warp.jlink.commands
+
+."C:\Program Files\SEGGER\JLink_V812e\JLinkRTTClient.exe" -RecordFile "C:\Users\User\Download\meas.txt"
+
+
+TODO
+
+To save memory
+* Comment out printBootSplash()
+* Remove case 'b' to 'u' to save memory, mainly for the read-only string memory and some heavy functions like repeatRegisterReadForDeviceAndAddress() which calls loopForSensor()
+
+
+
+
+
+warp.h
+devMMA8451
+
+
+TODO add jupyter notebook
